@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">FindYourMovie</string>
+    <string name="mortal_combat">Mortal Combat</string>
+    <string name="details">Details</string>
+    <string name="likeIt">Нравится</string>
+    <string name="inviteFriend">Пригласить друга</string>
+    <string name="backText">Назад</string>
+    <string name="leaveComment">Оставь свой комментарий</string>
+    <string name="chaos_walking">Chaos walking</string>
+    <string name="wolf100">100% Волк</string>
 </resources>

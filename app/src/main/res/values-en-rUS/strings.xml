@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="details">Details</string>
+    <string name="likeIt">Like it</string>
+    <string name="inviteFriend">Invite your friend</string>
+    <string name="backText">Back</string>
+    <string name="leaveComment">Leave a comment</string>
+    <string name="chaos_walking">Chaos walking</string>
+    <string name="mortal_combat">Mortal Combat</string>
+    <string name="app_name">Find your movie</string>
+    <string name="wolf100">100% Wolf</string>
+</resources>

@@ -29,6 +29,7 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 
+    //region views by lazy
     private val titleTextView by lazy {
         findViewById<TextView>(R.id.titleTxtView)
     }
@@ -54,6 +55,7 @@ class DetailsActivity : AppCompatActivity() {
     private val commentEdtView by lazy {
         findViewById<TextView>(R.id.commentTxtView)
     }
+//endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

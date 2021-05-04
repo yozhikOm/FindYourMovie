@@ -12,9 +12,9 @@ class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bind() {
         if (itemView.context as Activity is MainActivity) {
-            header.text = "Фильмы"
+            header.setText(R.string.movies)
         } else if (itemView.context as Activity is FavoritesActivity) {
-            header.text = "Избранное"
+            header.setText(R.string.favorites)
         }
     }
 }

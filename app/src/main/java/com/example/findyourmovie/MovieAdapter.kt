@@ -18,6 +18,7 @@ class MovieAdapter(private val items: List<MovieItem>, private val clickListener
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder $viewType")
 
+        //TODO Как исключить подобный хэдер из грида в ландшафтной ориентации, т.е. разместить его выше грида??
         // xml -> View
         return if (viewType == VIEW_TYPE_HEADER) {
             val inflater = LayoutInflater.from(parent.context)

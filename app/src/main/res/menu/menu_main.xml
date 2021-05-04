@@ -2,6 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_en"
+        android:orderInCategory="100"
+        android:title="En"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_ru"
+        android:orderInCategory="100"
+        android:title="Ru"
+        app:showAsAction="never"
+        />
+    <item
         android:id="@+id/action_favorites"
         android:orderInCategory="100"
         android:title="Favorites"

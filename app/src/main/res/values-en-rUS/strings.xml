@@ -9,4 +9,6 @@
     <string name="mortal_combat">Mortal Combat</string>
     <string name="app_name">Find your movie</string>
     <string name="wolf100">100% Wolf</string>
+    <string name="favorites">Favorites</string>
+    <string name="movies">Movies</string>
 </resources>

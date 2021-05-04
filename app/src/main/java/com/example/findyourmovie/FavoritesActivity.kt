@@ -63,4 +63,9 @@ class FavoritesActivity : AppCompatActivity() {
         //itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
         //recycler.addItemDecoration(itemDecoration)
     }
+
+    override fun onBackPressed() {
+        val intent: Intent = Intent(applicationContext, MainActivity::class.java);
+        startActivity(intent);
+    }
 }

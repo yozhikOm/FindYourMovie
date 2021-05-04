@@ -4,8 +4,8 @@
     android:id="@+id/header"
     android:layout_width="match_parent"
     android:layout_height="56dp"
-    android:gravity="center"
     android:background="#FFEEFFEE"
+    android:gravity="center"
     android:textSize="24sp"
     tools:text="@tools:sample/first_names">
 

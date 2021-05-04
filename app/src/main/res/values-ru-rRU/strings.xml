@@ -9,4 +9,6 @@
     <string name="leaveComment">Оставь свой комментарий</string>
     <string name="chaos_walking">Поступь хаоса</string>
     <string name="wolf100">100% Волк</string>
+    <string name="favorites">Избранное</string>
+    <string name="movies">Фильмы</string>
 </resources>

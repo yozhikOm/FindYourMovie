@@ -1,34 +1,26 @@
 package com.example.findyourmovie
 
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.Context
-import android.content.DialogInterface
 import android.content.res.Configuration
-import android.graphics.Canvas
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.system.exitProcess
 
 
-private const val TAG = "MyActivity"
+private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
     private val recycler by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
 
+    //region items lists
     private val items = mutableListOf(
         MovieItem(
             "Мортал Комбат",
@@ -138,6 +130,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     private var favoriteItems = mutableListOf<MovieItem>()
+    //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,26 +145,31 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    //TODO такое переключение не работает
+    //TODO как правильно переключаться между языками, если updateConfiguration - deprecated ?
+    //TODO почему по умолчанию грузится английский, когда в стрингах дефолтный - русский ?
     private fun changeLocale(locale: Locale) {
         Locale.setDefault(locale)
         val configuration = Configuration()
         configuration.setLocale(locale)
-        this.resources.updateConfiguration(configuration, null)
+        resources.updateConfiguration(configuration, null)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //TODO не работает переключение языков, почему по умолчанию грузится английский, когда в стрингах дефолтный - русский ?
         return when (item.itemId) {
             R.id.action_en -> {
-                Configuration().setLocale(Locale.ENGLISH);
-                //val locale = Locale("en")
-                //changeLocale(locale)
+                val locale = Locale("en", "US")
+                changeLocale(locale)
+
+                //Configuration().setLocale(Locale.ENGLISH);
 
                 true
             }
             R.id.action_ru -> {
-                val locale = Locale("ru")
-                changeLocale(locale)
+                val locale = Locale("ru", "RU")
+                //changeLocale(locale)
+                //TODO так тоже не работает
+                //resources.configuration.setLocale(locale);
 
                 true
             }
@@ -185,15 +183,15 @@ class MainActivity : AppCompatActivity() {
     //endregion
 
     //TODO почему не триггерится onConfigurationChanged?
-//    override fun onConfigurationChanged(newConfig: Configuration) {
-//        super.onConfigurationChanged(newConfig)
-//
-//        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
-//            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show()
-//        } else if (newConfig.orientation === Configuration.ORIENTATION_PORTRAIT) {
-//            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show()
-//        }
-//    }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (newConfig.orientation === Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show()
+        } else if (newConfig.orientation === Configuration.ORIENTATION_PORTRAIT) {
+            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun initRecycler() {
         val linearLayoutManager = LinearLayoutManager(this)
@@ -210,7 +208,6 @@ class MainActivity : AppCompatActivity() {
         recycler.adapter = MovieAdapter(items) { item, position ->
             //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
             item.isFavorite = !item.isFavorite
-            //item.isVisited = true
             recycler.adapter?.notifyItemChanged(position)
 
             if (item.isFavorite) {
@@ -220,44 +217,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //val itemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        //itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
         val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
         recycler.addItemDecoration(itemDecoration)
-    }
-
-    class CustomItemDecoration(context: Context, orientation: Int) :
-        DividerItemDecoration(context, orientation) {
-        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            super.onDraw(c, parent, state)
-        }
-
-        override fun getItemOffsets(
-            outRect: Rect,
-            view: View,
-            parent: RecyclerView,
-            state: RecyclerView.State
-        ) {
-            //super.getItemOffsets(outRect, view, parent, state)
-        }
     }
 
     override fun onBackPressed() {
         ExitDialog().show(supportFragmentManager, "dialog")
     }
 
-    class ExitDialog : DialogFragment() {
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            return AlertDialog.Builder(requireContext())
-                .setMessage("Вы уверены, что хотите закрыть приложение?")
-                .setCancelable(false)
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, DialogInterface.OnClickListener { _, _ ->
-                    //TODO как правильно выйти из приложения в диалогфрагменте?
-                    Activity().finishAffinity()
-                    exitProcess(0)
-                }).create()
-        }
-    }
+
 }

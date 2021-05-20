@@ -1,6 +1,5 @@
 package com.example.findyourmovie
 
-import android.content.DialogInterface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -44,6 +43,10 @@ class MovieAdapter(private val items: List<MovieItem>, private val clickListener
             holder.itemView.findViewById<ImageView>(R.id.favoriteImg).setOnClickListener {
                 clickListener(item, position)
             }
+            //TODO как реализовать нажатие на кнопку Details ??
+//            holder.itemView.findViewById<View>(R.id.detailsBtn).setOnClickListener {
+//                clickListener(item, position)
+//            }
         }
     }
 

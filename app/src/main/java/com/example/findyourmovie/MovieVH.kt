@@ -28,9 +28,9 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind(movie: MovieItem) {
         if (itemView.context as Activity is MainActivity) {
             if (movie.isFavorite) {
-                favIcon.setImageResource(R.drawable.ic_heart_grey_24dp)
-            } else {
                 favIcon.setImageResource(R.drawable.ic_heart_red_24dp)
+            } else {
+                favIcon.setImageResource(R.drawable.ic_heart_grey_24dp)
             }
         }
         else if (itemView.context as Activity is FavoritesActivity) {

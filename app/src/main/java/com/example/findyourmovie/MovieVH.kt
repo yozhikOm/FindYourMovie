@@ -1,10 +1,10 @@
 package com.example.findyourmovie
 
 import android.app.Activity
-import android.graphics.Color
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,13 +38,15 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         }
 
         if (movie.isVisited) {
-            title.setTextColor(Color.LTGRAY)
-        } else {
-            title.setTextColor(Color.BLACK)
+            title.setTextColor(ContextCompat.getColor(itemView.context, R.color.colorVisited))
+        }
+        else {
+            title.setTextColor(ContextCompat.getColor(itemView.context, R.color.colorPrimary))
         }
 
         title.text = movie.title
         details.text = movie.details
         cover.setImageResource(movie.cover)
     }
+
 }

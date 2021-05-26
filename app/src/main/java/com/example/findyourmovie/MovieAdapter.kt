@@ -2,11 +2,17 @@ package com.example.findyourmovie
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 
-class MovieAdapter(private val items: List<MovieItem>, private val clickListener: (item: MovieItem, position: Int) -> Unit) :
+interface OnMovieClickListener {
+    fun onDetailsClick(item: MovieItem, position: Int)
+    fun onFavoriteClick(item: MovieItem, position: Int)
+}
+
+class MovieAdapter(private val items: List<MovieItem>, private val clickListener: OnMovieClickListener) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "MovieAdapter"
@@ -17,7 +23,6 @@ class MovieAdapter(private val items: List<MovieItem>, private val clickListener
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder $viewType")
 
-        //TODO Как исключить подобный хэдер из грида в ландшафтной ориентации, т.е. разместить его выше грида??
         // xml -> View
         return if (viewType == VIEW_TYPE_HEADER) {
             val inflater = LayoutInflater.from(parent.context)
@@ -41,12 +46,11 @@ class MovieAdapter(private val items: List<MovieItem>, private val clickListener
             val item = items[position - 1]
             holder.bind(item)
             holder.itemView.findViewById<ImageView>(R.id.favoriteImg).setOnClickListener {
-                clickListener(item, position)
+                clickListener.onFavoriteClick(item, position)
             }
-            //TODO как реализовать нажатие на кнопку Details ??
-//            holder.itemView.findViewById<View>(R.id.detailsBtn).setOnClickListener {
-//                clickListener(item, position)
-//            }
+            holder.itemView.findViewById<View>(R.id.detailsBtn).setOnClickListener {
+                clickListener.onDetailsClick(item, position)
+            }
         }
     }
 
@@ -56,4 +60,5 @@ class MovieAdapter(private val items: List<MovieItem>, private val clickListener
         return if (position == 0) VIEW_TYPE_HEADER
         else VIEW_TYPE_ITEM
     }
+
 }

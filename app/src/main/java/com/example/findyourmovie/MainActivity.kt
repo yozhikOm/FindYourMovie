@@ -6,10 +6,10 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.Serializable
@@ -19,7 +19,7 @@ import kotlin.collections.ArrayList
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMovieClickListener {
     companion object {
         private const val RESULT_CODE_DETAILS = 333
     }
@@ -190,9 +190,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    //TODO такое переключение не работает
-    //TODO как правильно переключаться между языками, если updateConfiguration - deprecated ?
-    //TODO почему по умолчанию грузится английский, когда в стрингах дефолтный - русский ?
+    //TODO доработать переключение языков
     private fun changeLocale(locale: Locale) {
         Locale.setDefault(locale)
         val configuration = Configuration()
@@ -206,15 +204,11 @@ class MainActivity : AppCompatActivity() {
                 val locale = Locale("en", "US")
                 changeLocale(locale)
 
-                //Configuration().setLocale(Locale.ENGLISH);
-
                 true
             }
             R.id.action_ru -> {
                 val locale = Locale("ru", "RU")
-                //changeLocale(locale)
-                //TODO так тоже не работает
-                //resources.configuration.setLocale(locale);
+                changeLocale(locale)
 
                 true
             }
@@ -231,22 +225,15 @@ class MainActivity : AppCompatActivity() {
     }
     //endregion
 
-    //TODO почему не триггерится onConfigurationChanged?
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show()
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun initRecycler() {
         val linearLayoutManager = LinearLayoutManager(this)
         val gridLayoutManager = GridLayoutManager(this, 2)
 
-        //TODO не меняет на portrait, когда вверх ногами, потому что эмулятор?
+        gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == 0) gridLayoutManager.spanCount else 1
+            }
+        }
         val orientation = this.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             recycler.layoutManager = linearLayoutManager
@@ -254,15 +241,26 @@ class MainActivity : AppCompatActivity() {
             recycler.layoutManager = gridLayoutManager
         }
 
-        recycler.adapter = MovieAdapter(items) { item, position ->
-            //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
-            item.isFavorite = !item.isFavorite
-            recycler.adapter?.notifyItemChanged(position)
-        }
+        recycler.adapter = MovieAdapter(items, this)
 
         val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
         recycler.addItemDecoration(itemDecoration)
+    }
+
+    override fun onDetailsClick(item: MovieItem, position: Int) {
+        item.isVisited = true
+        recycler.adapter?.notifyItemChanged(position)
+
+        val intent = Intent(this, DetailsActivity::class.java)
+        intent.putExtra("EXTRA_MOVIE", item)
+        startActivityForResult(intent, RESULT_CODE_DETAILS)
+    }
+
+    override fun onFavoriteClick(item: MovieItem, position: Int) {
+        //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
+        item.isFavorite = !item.isFavorite
+        recycler.adapter?.notifyItemChanged(position)
     }
 
     override fun onBackPressed() {

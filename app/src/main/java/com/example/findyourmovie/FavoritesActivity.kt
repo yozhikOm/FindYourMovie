@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.Serializable
 
-class FavoritesActivity : AppCompatActivity() {
+class FavoritesActivity : AppCompatActivity(), OnMovieClickListener {
     companion object {
         private const val EXTRA_FAVORITES_LIST = "EXTRA_FAVORITES_LIST"
+        private const val RESULT_CODE_DETAILS = 333
     }
 
     private val recyclerFav by lazy { findViewById<RecyclerView>(R.id.recyclerFavoritesView) }
-    private var favoriteItems: MutableList<MovieItem> = ArrayList<MovieItem>()
+    private var favoriteItems: MutableList<MovieItem> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,16 +30,25 @@ class FavoritesActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         recyclerFav.layoutManager = layoutManager;
 
-        recyclerFav.adapter = MovieAdapter(favoriteItems as ArrayList<MovieItem>) { item, position ->
-            //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
-
-            favoriteItems.remove(item)
-            recyclerFav.adapter?.notifyItemRemoved(position)
-        }
+        recyclerFav.adapter = MovieAdapter(favoriteItems as ArrayList<MovieItem>, this)
 
         val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
         recyclerFav.addItemDecoration(itemDecoration)
+    }
+
+    override fun onDetailsClick(item: MovieItem, position: Int) {
+        item.isVisited = true;
+        recyclerFav.adapter?.notifyItemChanged(position)
+
+        val intent = Intent(this, DetailsActivity::class.java)
+        intent.putExtra("EXTRA_MOVIE", item)
+        startActivityForResult(intent, RESULT_CODE_DETAILS)
+    }
+
+    override fun onFavoriteClick(item: MovieItem, position: Int) {
+        favoriteItems.remove(item)
+        recyclerFav.adapter?.notifyItemRemoved(position)
     }
 
     override fun onBackPressed() {

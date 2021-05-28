@@ -1,92 +1,170 @@
 package com.example.findyourmovie
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
+import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
-import androidx.core.content.ContextCompat
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.io.Serializable
+import java.util.*
+import kotlin.collections.ArrayList
 
-private const val TAG = "MyActivity"
 
-class MainActivity : AppCompatActivity() {
+private const val TAG = "MainActivity"
 
+class MainActivity : AppCompatActivity(), OnMovieClickListener {
     companion object {
         private const val RESULT_CODE_DETAILS = 333
     }
 
-    private val detailsBtn1 by lazy {
-        findViewById<Button>(R.id.detailsBtn1)
-    }
-    private val titleTxtView1 by lazy {
-        findViewById<TextView>(R.id.titleTxtView1)
-    }
-    private val detailsBtn2 by lazy {
-        findViewById<Button>(R.id.detailsBtn2)
-    }
-    private val titleTxtView2 by lazy {
-        findViewById<TextView>(R.id.titleTxtView2)
-    }
-    private val detailsBtn3 by lazy {
-        findViewById<Button>(R.id.detailsBtn3)
-    }
-    private val titleTxtView3 by lazy {
-        findViewById<TextView>(R.id.titleTxtView3)
-    }
+    private val recycler by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
 
-    private val aboutMovies: Array<String> = arrayOf(
-        "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
-        "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
-        "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти"
+    //region items lists
+    private var items = mutableListOf(
+        MovieItem(
+            1,
+            "Мортал Комбат",
+            "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
+            R.drawable.mortal_combat,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            2,
+            "Поступь хаоса",
+            "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
+            R.drawable.chaos_walking,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            3,
+            "100% Волк",
+            "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти",
+            R.drawable.wolf,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            4,
+            "Мортал Комбат",
+            "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
+            R.drawable.mortal_combat,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            5,
+            "Поступь хаоса",
+            "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
+            R.drawable.chaos_walking,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            6,
+            "100% Волк",
+            "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти",
+            R.drawable.wolf,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            7,
+            "Мортал Комбат",
+            "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
+            R.drawable.mortal_combat,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            8,
+            "Поступь хаоса",
+            "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
+            R.drawable.chaos_walking,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            9,
+            "100% Волк",
+            "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти",
+            R.drawable.wolf,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            10,
+            "Мортал Комбат",
+            "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
+            R.drawable.mortal_combat,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            11,
+            "Поступь хаоса",
+            "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
+            R.drawable.chaos_walking,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            12,
+            "100% Волк",
+            "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти",
+            R.drawable.wolf,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            13,
+            "Мортал Комбат",
+            "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
+            R.drawable.mortal_combat,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            14,
+            "Поступь хаоса",
+            "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
+            R.drawable.chaos_walking,
+            isFavorite = false,
+            isVisited = false
+        ),
+        MovieItem(
+            15,
+            "100% Волк",
+            "«100% Волк» — австралийский полнометражный комедийный мультфильм Алекса Стадерманна. Фредди Люпин — наследник гордого семейства оборотней, отчаянно желающий стать полноценным членом стаи. Однако в день своего долгожданного 13-летия он превращается в пуделя. Думая, что жизнь не может стать еще хуже, он попадает в собачий приют, где знакомится с собакой по кличке Бетти",
+            R.drawable.wolf,
+            isFavorite = false,
+            isVisited = false
+        )
     )
-
-    var movieCovers= arrayOf(R.drawable.mortal_combat, R.drawable.chaos_walking, R.drawable.wolf)
+    //endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         savedInstanceState?.let {
-            titleTxtView1.setTextColor(it.getInt("EXTRA_COLOR1"))
-            titleTxtView2.setTextColor(it.getInt("EXTRA_COLOR2"))
-            titleTxtView3.setTextColor(it.getInt("EXTRA_COLOR3"))
+            items = it.getParcelableArrayList("EXTRA_ITEMS")!!
         }
-
-        detailsBtn1.setOnClickListener{
-            titleTxtView1.setTextColor(ContextCompat.getColor(this, R.color.colorAccent))
-
-            //TODO как совместить startActivityForResult с launchActivity ?
-            val intent = Intent(this, DetailsActivity::class.java)
-            startActivityForResult(intent, RESULT_CODE_DETAILS)
-            //DetailsActivity.launchActivity(titleTxtView1.text.toString(), aboutMovies[0], movieCovers[0],this)
-        }
-
-        detailsBtn2.setOnClickListener{
-            titleTxtView2.setTextColor(ContextCompat.getColor(this, R.color.colorAccent))
-
-            DetailsActivity.launchActivity(titleTxtView2.text.toString(), aboutMovies[1], movieCovers[1], this)
-        }
-
-        detailsBtn3.setOnClickListener{
-            titleTxtView3.setTextColor(ContextCompat.getColor(this, R.color.colorAccent))
-
-            DetailsActivity.launchActivity(titleTxtView3.text.toString(), aboutMovies[2], movieCovers[2],this)
-        }
+        initRecycler()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putInt("EXTRA_COLOR1", titleTxtView1.currentTextColor)
-        //TODO как сохранять текущий цвет для каждого элемента, чтобы не плодить переменные?
-        outState.putInt("EXTRA_COLOR2", titleTxtView2.currentTextColor)
-        outState.putInt("EXTRA_COLOR3", titleTxtView3.currentTextColor)
+        outState.putParcelableArrayList("EXTRA_ITEMS", ArrayList(items))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -94,12 +172,99 @@ class MainActivity : AppCompatActivity() {
 
         if(requestCode == RESULT_CODE_DETAILS) {
             if(resultCode == Activity.RESULT_OK) {
-                Log.i(TAG, data?.getStringExtra("EXTRA_IS_LIKED"))
-                Log.i(TAG, data?.getStringExtra("EXTRA_COMMENT"))
-                Toast.makeText(this, data?.getStringExtra("EXTRA_IS_LIKED")?: "not liked", Toast.LENGTH_SHORT).show()
-                Toast.makeText(this, data?.getStringExtra("EXTRA_COMMENT")?: "no comments", Toast.LENGTH_SHORT).show()
+                val favItems =  data?.getSerializableExtra("EXTRA_FAVORITES_LIST") as ArrayList<MovieItem>
+                items.forEach { movie ->
+                    val foundItem = favItems.firstOrNull { fav ->
+                        fav.id == movie.id
+                    }
+                    movie.isFavorite = foundItem != null
+                }
+                initRecycler()
             }
         }
+    }
+
+    //region Menu
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    //TODO доработать переключение языков
+    private fun changeLocale(locale: Locale) {
+        Locale.setDefault(locale)
+        val configuration = Configuration()
+        configuration.setLocale(locale)
+        resources.updateConfiguration(configuration, null)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_en -> {
+                val locale = Locale("en", "US")
+                changeLocale(locale)
+
+                true
+            }
+            R.id.action_ru -> {
+                val locale = Locale("ru", "RU")
+                changeLocale(locale)
+
+                true
+            }
+            R.id.action_favorites -> {
+                val favoriteItems = items.filter{it.isFavorite}
+
+                val intent = Intent(this, FavoritesActivity::class.java)
+                intent.putExtra("EXTRA_FAVORITES_LIST", favoriteItems as Serializable)
+                startActivityForResult(intent, RESULT_CODE_DETAILS)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    //endregion
+
+    private fun initRecycler() {
+        val linearLayoutManager = LinearLayoutManager(this)
+        val gridLayoutManager = GridLayoutManager(this, 2)
+
+        gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == 0) gridLayoutManager.spanCount else 1
+            }
+        }
+        val orientation = this.resources.configuration.orientation
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            recycler.layoutManager = linearLayoutManager
+        } else {
+            recycler.layoutManager = gridLayoutManager
+        }
+
+        recycler.adapter = MovieAdapter(items, this)
+
+        val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
+        itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
+        recycler.addItemDecoration(itemDecoration)
+    }
+
+    override fun onDetailsClick(item: MovieItem, position: Int) {
+        item.isVisited = true
+        recycler.adapter?.notifyItemChanged(position)
+
+        val intent = Intent(this, DetailsActivity::class.java)
+        intent.putExtra("EXTRA_MOVIE", item)
+        startActivityForResult(intent, RESULT_CODE_DETAILS)
+    }
+
+    override fun onFavoriteClick(item: MovieItem, position: Int) {
+        //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
+        item.isFavorite = !item.isFavorite
+        recycler.adapter?.notifyItemChanged(position)
+    }
+
+    override fun onBackPressed() {
+        ExitDialog().show(supportFragmentManager, "dialog")
     }
 
 

@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Найди свое кино</string>
-    <string name="mortal_combat">Мортал Комбат</string>
     <string name="details">Подробно</string>
     <string name="likeIt">Нравится</string>
     <string name="inviteFriend">Пригласить друга</string>
+    <string name="mortal_combat">Мортал Комбат</string>
     <string name="backText">Назад</string>
     <string name="leaveComment">Оставь свой комментарий</string>
     <string name="chaos_walking">Поступь хаоса</string>

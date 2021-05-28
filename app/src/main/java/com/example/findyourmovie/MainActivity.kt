@@ -1,30 +1,22 @@
 package com.example.findyourmovie
 
-import android.app.Activity
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(), OnMovieClickListener {
+class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener {
     companion object {
         private const val RESULT_CODE_DETAILS = 333
     }
-
-    private val recycler by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
 
     //region items lists
     private var items = mutableListOf(
@@ -155,34 +147,61 @@ class MainActivity : AppCompatActivity(), OnMovieClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        savedInstanceState?.let {
-            items = it.getParcelableArrayList("EXTRA_ITEMS")!!
-        }
-        initRecycler()
+        //TODO почему приложение крэшится при переворачивании экрана?
+
+//        savedInstanceState?.let {
+//            items = it.getParcelableArrayList("EXTRA_ITEMS")!!
+//        }
+        showMovieList()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putParcelableArrayList("EXTRA_ITEMS", ArrayList(items))
+    private fun showMovieList() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentContainer, MovieListFragment(items), MovieListFragment.TAG)
+            .commit()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == RESULT_CODE_DETAILS) {
-            if(resultCode == Activity.RESULT_OK) {
-                val favItems =  data?.getSerializableExtra("EXTRA_FAVORITES_LIST") as ArrayList<MovieItem>
-                items.forEach { movie ->
-                    val foundItem = favItems.firstOrNull { fav ->
-                        fav.id == movie.id
-                    }
-                    movie.isFavorite = foundItem != null
-                }
-                initRecycler()
-            }
-        }
+    private fun showMovieDetails(item: MovieItem) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentContainer, MovieDetailsFragment.newInstance(item), MovieDetailsFragment.TAG)
+            .addToBackStack(null)
+            .commit()
     }
+
+    private fun showFavoritesList() {
+        val favoriteItems = items.filter{it.isFavorite}.toMutableList()
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragmentContainer, FavoritesListFragment(favoriteItems), FavoritesListFragment.TAG)
+            .addToBackStack(null)
+            .commit()
+    }
+
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//
+//        outState.putParcelableArrayList("EXTRA_ITEMS", ArrayList(items))
+//    }
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if(requestCode == RESULT_CODE_DETAILS) {
+//            if(resultCode == Activity.RESULT_OK) {
+//                val favItems =  data?.getSerializableExtra("EXTRA_FAVORITES_LIST") as ArrayList<MovieItem>
+//                items.forEach { movie ->
+//                    val foundItem = favItems.firstOrNull { fav ->
+//                        fav.id == movie.id
+//                    }
+//                    movie.isFavorite = foundItem != null
+//                }
+//                //initRecycler()
+//            }
+//        }
+//    }
 
     //region Menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -213,11 +232,8 @@ class MainActivity : AppCompatActivity(), OnMovieClickListener {
                 true
             }
             R.id.action_favorites -> {
-                val favoriteItems = items.filter{it.isFavorite}
+                showFavoritesList()
 
-                val intent = Intent(this, FavoritesActivity::class.java)
-                intent.putExtra("EXTRA_FAVORITES_LIST", favoriteItems as Serializable)
-                startActivityForResult(intent, RESULT_CODE_DETAILS)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -225,46 +241,40 @@ class MainActivity : AppCompatActivity(), OnMovieClickListener {
     }
     //endregion
 
-    private fun initRecycler() {
-        val linearLayoutManager = LinearLayoutManager(this)
-        val gridLayoutManager = GridLayoutManager(this, 2)
-
-        gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (position == 0) gridLayoutManager.spanCount else 1
-            }
-        }
-        val orientation = this.resources.configuration.orientation
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            recycler.layoutManager = linearLayoutManager
-        } else {
-            recycler.layoutManager = gridLayoutManager
-        }
-
-        recycler.adapter = MovieAdapter(items, this)
-
-        val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
-        itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
-        recycler.addItemDecoration(itemDecoration)
-    }
-
-    override fun onDetailsClick(item: MovieItem, position: Int) {
-        item.isVisited = true
-        recycler.adapter?.notifyItemChanged(position)
-
-        val intent = Intent(this, DetailsActivity::class.java)
-        intent.putExtra("EXTRA_MOVIE", item)
-        startActivityForResult(intent, RESULT_CODE_DETAILS)
-    }
-
-    override fun onFavoriteClick(item: MovieItem, position: Int) {
-        //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
-        item.isFavorite = !item.isFavorite
-        recycler.adapter?.notifyItemChanged(position)
-    }
-
     override fun onBackPressed() {
-        ExitDialog().show(supportFragmentManager, "dialog")
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            val favFragment: FavoritesListFragment? =
+                supportFragmentManager.findFragmentByTag("FavoritesListFragment") as FavoritesListFragment?
+            if (favFragment != null && favFragment.isVisible) {
+                Toast.makeText(this, "it was FavoritesListFragment", Toast.LENGTH_SHORT).show()
+                val favItems =  favFragment.items
+                items.forEach { movie ->
+                    val foundItem = favItems.firstOrNull { fav ->
+                        fav.id == movie.id
+                    }
+                    movie.isFavorite = foundItem != null
+                }
+
+            }
+//            else {
+//                Toast.makeText(this, "it was not FavoritesListFragment", Toast.LENGTH_SHORT).show()
+//            }
+
+            supportFragmentManager.popBackStack()
+        } else {
+            ExitDialog().show(supportFragmentManager, "dialog")
+        }
+    }
+
+    override fun onDetailsClick(movieItem: MovieItem, position: Int) {
+        showMovieDetails(movieItem)
+    }
+
+    //TODO корректо ли оставлять этот метод пустым и все изменения с элементом производить во фрагменте?
+    // или стоит передавать в этот метод еще и ресайклер и здесь производить изменения с элементом?
+    override fun onFavoriteClick(movieItem: MovieItem, position: Int) {//, recycler: RecyclerView) {
+//        movieItem.isFavorite = !movieItem.isFavorite
+//        recycler.adapter?.notifyItemChanged(position)
     }
 
 

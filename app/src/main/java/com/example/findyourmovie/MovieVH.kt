@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 
 class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -13,7 +14,8 @@ class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind() {
         if (itemView.context as Activity is MainActivity) {
             header.setText(R.string.movies)
-        } else if (itemView.context as Activity is FavoritesActivity) {
+        //TODO как задать др.заголовок во фрагменте?
+        } else if (itemView.context as Fragment is FavoritesListFragment) {
             header.setText(R.string.favorites)
         }
     }
@@ -26,14 +28,16 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val cover = itemView.findViewById<ImageView>(R.id.cover)
 
     fun bind(movie: MovieItem) {
+        //TODO как определить, какой фрагмент сейчас активный?
         if (itemView.context as Activity is MainActivity) {
+        //if (itemView.context as Fragment is MovieListFragment) {
             if (movie.isFavorite) {
                 favIcon.setImageResource(R.drawable.ic_heart_red_24dp)
             } else {
                 favIcon.setImageResource(R.drawable.ic_heart_grey_24dp)
             }
         }
-        else if (itemView.context as Activity is FavoritesActivity) {
+        else {//if (itemView.context as Fragment is FavoritesListFragment) {
             favIcon.setImageResource(R.drawable.ic_delete_red_24dp)
         }
 

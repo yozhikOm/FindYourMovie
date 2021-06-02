@@ -7,15 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 
-//interface OnMovieClickListener {
-//    fun onDetailsClick(item: MovieItem, position: Int)
-//    fun onFavoriteClick(item: MovieItem, position: Int)
-//}
-
-//TODO правильно ли использовать в адаптере интерфейс фрагмента? - MovieListFragment.OnMovieClickListener
 class MovieAdapter(private val layoutInflater: LayoutInflater,
-                   private val items: List<MovieItem>,
-                   private val clickListener: MovieListFragment.OnMovieClickListener
+                   private val items: MutableList<MovieItem>,
+                   private val clickListener: OnMovieClickListener
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {

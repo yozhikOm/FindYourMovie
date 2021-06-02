@@ -6,16 +6,16 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener {
+class MainActivity : AppCompatActivity(), OnDetailsClickListener {
     companion object {
-        private const val RESULT_CODE_DETAILS = 333
+        private const val ITEMS = "ITEMS"
+        private const val ACTIVE_FRAGMENT = "ACTIVE_FRAGMENT"
     }
 
     //region items lists
@@ -147,18 +147,26 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //TODO почему приложение крэшится при переворачивании экрана?
+        if (savedInstanceState != null) {
+            items = savedInstanceState.getParcelableArrayList(ITEMS)!!
 
-//        savedInstanceState?.let {
-//            items = it.getParcelableArrayList("EXTRA_ITEMS")!!
-//        }
-        showMovieList()
+            val activeFragmentTag = savedInstanceState.getString(ACTIVE_FRAGMENT)
+            if(activeFragmentTag == null) {
+                showMovieList()
+            }
+            else if(activeFragmentTag == "FavListFragment") {
+                showFavoritesList()
+            }
+        }
+        else {
+            showMovieList()
+        }
     }
 
     private fun showMovieList() {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, MovieListFragment(items), MovieListFragment.TAG)
+            .replace(R.id.fragmentContainer, MovieListFragment.newInstance(items), MovieListFragment.TAG)
             .commit()
     }
 
@@ -166,7 +174,7 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragmentContainer, MovieDetailsFragment.newInstance(item), MovieDetailsFragment.TAG)
-            .addToBackStack(null)
+            .addToBackStack("DetailsFragment")
             .commit()
     }
 
@@ -175,33 +183,27 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, FavoritesListFragment(favoriteItems), FavoritesListFragment.TAG)
-            .addToBackStack(null)
+            .replace(R.id.fragmentContainer, FavoritesListFragment.newInstance(favoriteItems), FavoritesListFragment.TAG)
+            .addToBackStack("FavListFragment")
             .commit()
     }
 
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//
-//        outState.putParcelableArrayList("EXTRA_ITEMS", ArrayList(items))
-//    }
+    private fun getActiveFragmentTag(): String? {//Fragment? {
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            return null
+        }
+        return supportFragmentManager.getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 1).name
+    }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//
-//        if(requestCode == RESULT_CODE_DETAILS) {
-//            if(resultCode == Activity.RESULT_OK) {
-//                val favItems =  data?.getSerializableExtra("EXTRA_FAVORITES_LIST") as ArrayList<MovieItem>
-//                items.forEach { movie ->
-//                    val foundItem = favItems.firstOrNull { fav ->
-//                        fav.id == movie.id
-//                    }
-//                    movie.isFavorite = foundItem != null
-//                }
-//                //initRecycler()
-//            }
-//        }
-//    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putParcelableArrayList(ITEMS, ArrayList(items))
+
+        val activeFragmentTag: String? = getActiveFragmentTag()
+        outState.putString(ACTIVE_FRAGMENT, activeFragmentTag)
+
+    }
 
     //region Menu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -246,7 +248,6 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
             val favFragment: FavoritesListFragment? =
                 supportFragmentManager.findFragmentByTag("FavoritesListFragment") as FavoritesListFragment?
             if (favFragment != null && favFragment.isVisible) {
-                Toast.makeText(this, "it was FavoritesListFragment", Toast.LENGTH_SHORT).show()
                 val favItems =  favFragment.items
                 items.forEach { movie ->
                     val foundItem = favItems.firstOrNull { fav ->
@@ -254,11 +255,7 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
                     }
                     movie.isFavorite = foundItem != null
                 }
-
             }
-//            else {
-//                Toast.makeText(this, "it was not FavoritesListFragment", Toast.LENGTH_SHORT).show()
-//            }
 
             supportFragmentManager.popBackStack()
         } else {
@@ -268,13 +265,6 @@ class MainActivity : AppCompatActivity(), MovieListFragment.OnMovieClickListener
 
     override fun onDetailsClick(movieItem: MovieItem, position: Int) {
         showMovieDetails(movieItem)
-    }
-
-    //TODO корректо ли оставлять этот метод пустым и все изменения с элементом производить во фрагменте?
-    // или стоит передавать в этот метод еще и ресайклер и здесь производить изменения с элементом?
-    override fun onFavoriteClick(movieItem: MovieItem, position: Int) {//, recycler: RecyclerView) {
-//        movieItem.isFavorite = !movieItem.isFavorite
-//        recycler.adapter?.notifyItemChanged(position)
     }
 
 

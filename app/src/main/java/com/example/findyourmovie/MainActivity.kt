@@ -4,8 +4,8 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -143,22 +143,24 @@ class MainActivity : AppCompatActivity(), OnDetailsClickListener {
     )
     //endregion
 
+    private val bottomNavigationView by lazy { findViewById<BottomNavigationView>(R.id.bottom_navigation_view) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
         if (savedInstanceState != null) {
             items = savedInstanceState.getParcelableArrayList(ITEMS)!!
 
             val activeFragmentTag = savedInstanceState.getString(ACTIVE_FRAGMENT)
-            if(activeFragmentTag == null) {
+            if (activeFragmentTag == null) {
                 showMovieList()
-            }
-            else if(activeFragmentTag == "FavListFragment") {
+            } else if (activeFragmentTag == "FavListFragment") {
                 showFavoritesList()
             }
-        }
-        else {
+        } else {
             showMovieList()
         }
     }
@@ -166,33 +168,38 @@ class MainActivity : AppCompatActivity(), OnDetailsClickListener {
     private fun showMovieList() {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, MovieListFragment.newInstance(items), MovieListFragment.TAG)
+            .replace(
+                R.id.fragmentContainer,
+                MovieListFragment.newInstance(items),
+                MovieListFragment.TAG
+            )
             .commit()
     }
 
     private fun showMovieDetails(item: MovieItem) {
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, MovieDetailsFragment.newInstance(item), MovieDetailsFragment.TAG)
+            .replace(
+                R.id.fragmentContainer,
+                MovieDetailsFragment.newInstance(item),
+                MovieDetailsFragment.TAG
+            )
             .addToBackStack("DetailsFragment")
             .commit()
     }
 
     private fun showFavoritesList() {
-        val favoriteItems = items.filter{it.isFavorite}.toMutableList()
+        val favoriteItems = items.filter { it.isFavorite }.toMutableList()
 
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragmentContainer, FavoritesListFragment.newInstance(favoriteItems), FavoritesListFragment.TAG)
+            .replace(
+                R.id.fragmentContainer,
+                FavoritesListFragment.newInstance(favoriteItems),
+                FavoritesListFragment.TAG
+            )
             .addToBackStack("FavListFragment")
             .commit()
-    }
-
-    private fun getActiveFragmentTag(): String? {//Fragment? {
-        if (supportFragmentManager.backStackEntryCount == 0) {
-            return null
-        }
-        return supportFragmentManager.getBackStackEntryAt(supportFragmentManager.backStackEntryCount - 1).name
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -200,9 +207,21 @@ class MainActivity : AppCompatActivity(), OnDetailsClickListener {
 
         outState.putParcelableArrayList(ITEMS, ArrayList(items))
 
-        val activeFragmentTag: String? = getActiveFragmentTag()
+        val activeFragmentTag: String? = getVisibleFragmentTag()
         outState.putString(ACTIVE_FRAGMENT, activeFragmentTag)
+    }
 
+    private fun getVisibleFragmentTag(): String? {
+        for (fragment in supportFragmentManager.fragments) {
+            if (fragment != null && fragment.isVisible) {
+                return fragment.tag
+            }
+        }
+        return null
+    }
+
+    override fun onDetailsClick(movieItem: MovieItem, position: Int) {
+        showMovieDetails(movieItem)
     }
 
     //region Menu
@@ -233,38 +252,49 @@ class MainActivity : AppCompatActivity(), OnDetailsClickListener {
 
                 true
             }
-            R.id.action_favorites -> {
-                showFavoritesList()
 
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
     //endregion
 
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            val favFragment: FavoritesListFragment? =
-                supportFragmentManager.findFragmentByTag("FavoritesListFragment") as FavoritesListFragment?
-            if (favFragment != null && favFragment.isVisible) {
-                val favItems =  favFragment.items
-                items.forEach { movie ->
-                    val foundItem = favItems.firstOrNull { fav ->
-                        fav.id == movie.id
-                    }
-                    movie.isFavorite = foundItem != null
+    //region Botton Navigation
+    private val onNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.navigationHome -> {
+                    showMovieList()
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigationFavorites -> {
+                    showFavoritesList()
+                    return@OnNavigationItemSelectedListener true
                 }
             }
+            false
+        }
+    //endregion
 
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            when (getVisibleFragmentTag()) {
+                "MovieListFragment" -> ExitDialog().show(supportFragmentManager, "dialog")
+                "FavoritesListFragment" -> {
+                    val favFragment: FavoritesListFragment =
+                        supportFragmentManager.findFragmentByTag("FavoritesListFragment") as FavoritesListFragment
+                    val favItems = favFragment.items
+                    items.forEach { movie ->
+                        val foundItem = favItems.firstOrNull { fav ->
+                            fav.id == movie.id
+                        }
+                        movie.isFavorite = foundItem != null
+                    }
+                }
+            }
             supportFragmentManager.popBackStack()
         } else {
             ExitDialog().show(supportFragmentManager, "dialog")
         }
-    }
-
-    override fun onDetailsClick(movieItem: MovieItem, position: Int) {
-        showMovieDetails(movieItem)
     }
 
 

@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.data.MovieItem
 
 class MovieAdapter(private val layoutInflater: LayoutInflater,
-                   private val items: MutableList<MovieItem>,
+                   //private var items: MutableList<MovieItem>, //List<Movie>,
                    private val clickListener: OnMovieClickListener
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -17,6 +19,8 @@ class MovieAdapter(private val layoutInflater: LayoutInflater,
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_ITEM = 1
     }
+
+    private var items = emptyList<Movie>() // Cached copy of words
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         Log.d(TAG, "onCreateViewHolder $viewType")
@@ -59,4 +63,10 @@ class MovieAdapter(private val layoutInflater: LayoutInflater,
         else VIEW_TYPE_ITEM
     }
 
+    internal fun setMovies(movies: List<Movie>) {
+//        items.clear()
+//        items.addAll(movies)
+        this.items = movies
+        notifyDataSetChanged()
+    }
 }

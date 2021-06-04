@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.data.MovieItem
 
 class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val header = itemView.findViewById<TextView>(R.id.header)
@@ -27,7 +29,7 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val details = itemView.findViewById<TextView>(R.id.details)
     private val cover = itemView.findViewById<ImageView>(R.id.cover)
 
-    fun bind(movie: MovieItem) {
+    fun bind(movie: Movie) {
         //TODO как определить, какой фрагмент сейчас активный?
         if (itemView.context as Activity is MainActivity) {
         //if (itemView.context as Fragment is MovieListFragment) {

@@ -7,23 +7,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.data.MovieItem
+import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class FavoritesListFragment() : Fragment() {
-    lateinit var items: MutableList<MovieItem>
+    //lateinit var items: MutableList<MovieItem>
+    private val viewModel: MovieViewModel by activityViewModels()
 
     companion object {
         const val TAG = "FavoritesListFragment"
         private const val FAV_ITEMS = "FAV_ITEMS"
 
-        fun newInstance(favoriteItems: MutableList<MovieItem>): Fragment {
-            val args = Bundle()
-            args.putParcelableArrayList(FAV_ITEMS, ArrayList(favoriteItems))
-
-            val fragment = FavoritesListFragment()
-            fragment.arguments = args
-            return fragment
-        }
+//        fun newInstance(favoriteItems: MutableList<MovieItem>): Fragment {
+//            val args = Bundle()
+//            args.putParcelableArrayList(FAV_ITEMS, ArrayList(favoriteItems))
+//
+//            val fragment = FavoritesListFragment()
+//            fragment.arguments = args
+//            return fragment
+//        }
     }
 
     override fun onCreateView(
@@ -36,25 +42,30 @@ class FavoritesListFragment() : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        items = arguments?.getParcelableArrayList<MovieItem>(FAV_ITEMS)?.toMutableList()!!
+        //items = arguments?.getParcelableArrayList<MovieItem>(FAV_ITEMS)?.toMutableList()!!
 
         val listener: OnMovieClickListener = object:
             OnMovieClickListener {
-            override fun onDetailsClick(movieItem: MovieItem, position: Int) {
+            override fun onDetailsClick(movieItem: Movie, position: Int) {
                 movieItem.isVisited = true
                 view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemChanged(position)
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }
 
-            override fun onFavoriteClick(movieItem: MovieItem, position:Int) {
-                items.remove(movieItem)
+            override fun onFavoriteClick(movieItem: Movie, position:Int) {
+                //items.remove(movieItem)
                 view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemRemoved(position)
                 Toast.makeText(requireContext(), "Фильм '${movieItem.title }' удален из избранного", Toast.LENGTH_SHORT).show()
             }
         }
+        val adapter = MovieAdapter(LayoutInflater.from(requireContext()), listener)
 
-        view.findViewById<RecyclerView>(R.id.recyclerView)
-            .adapter = MovieAdapter(LayoutInflater.from(requireContext()), items, listener)
+        view.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
+
+        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
+            // Update the cached copy of the words in the adapter.
+            movies?.let { adapter.setMovies(it) }
+        })
 
     }
 

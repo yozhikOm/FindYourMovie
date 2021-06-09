@@ -13,8 +13,6 @@ import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieItem
 
 class MovieDetailsFragment: Fragment() {
-    //private val viewModel: MovieViewModel by activityViewModels()
-
     companion object {
         const val TAG = "MovieDetailsFragment"
         private const val EXTRA_MOVIE = "EXTRA_MOVIE"
@@ -48,19 +46,10 @@ class MovieDetailsFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val movieItem: Movie? = arguments?.getParcelable<Movie>(EXTRA_MOVIE)
+        val movieItem: Movie? = arguments?.getParcelable(EXTRA_MOVIE)
 
-//        val movie = Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY))
-//        wordViewModel.insert(word)
-//        Unit
-
-//        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
-//            // Update the cached copy of the movies in the adapter.
-//            movies?.let { adapter.setMovies(it) }
-//        })
-
-        view.findViewById<TextView>(R.id.titleTxtView).text = movieItem?.title//arguments?.getString(EXTRA_TITLE, "some title")
-        view.findViewById<TextView>(R.id.detailsTxtView).text = movieItem?.details//arguments?.getString(EXTRA_DETAILS, "some details")
+        view.findViewById<TextView>(R.id.titleTxtView).text = movieItem?.title
+        view.findViewById<TextView>(R.id.detailsTxtView).text = movieItem?.details
         movieItem?.cover?.let {
             view.findViewById<ImageView>(R.id.coverImg).setImageResource(
                 it

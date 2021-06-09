@@ -15,7 +15,6 @@ import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class FavoritesListFragment() : Fragment() {
-    //lateinit var items: MutableList<MovieItem>
     private val viewModel: MovieViewModel by activityViewModels()
 
     companion object {
@@ -35,16 +34,14 @@ class FavoritesListFragment() : Fragment() {
         val listener: OnMovieClickListener = object:
             OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
-                movieItem.isVisited = true
-                view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemChanged(position)
+                viewModel.setVisited(movieItem.id, true)
+
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }
 
             override fun onFavoriteClick(movieItem: Movie, position:Int) {
-                //items.remove(movieItem)
-                //TODO как удалить из фрагмента?
                 viewModel.setFavorite(movieItem.id, false)
-                view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemRemoved(position)
+
                 Toast.makeText(requireContext(), "Фильм '${movieItem.title }' удален из избранного", Toast.LENGTH_SHORT).show()
             }
         }

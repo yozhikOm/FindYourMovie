@@ -36,16 +36,13 @@ class MovieListFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val listener: OnMovieClickListener = object: OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
-                movieItem.isVisited = true
-                view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemChanged(position)
+                viewModel.setVisited(movieItem.id, true)
+
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }
 
             override fun onFavoriteClick(movieItem: Movie, position: Int) {
                 val newValue: Boolean = !movieItem.isFavorite
-
-                movieItem.isFavorite = newValue
-                view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemChanged(position)
 
                 viewModel.setFavorite(movieItem.id, newValue)
 

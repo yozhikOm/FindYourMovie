@@ -46,4 +46,8 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     fun setFavorite(id: Int, isFavorite: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         repository.setFavorite(id, isFavorite)
     }
+
+    fun setVisited(id: Int, isVisited: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        repository.setVisited(id, isVisited)
+    }
 }

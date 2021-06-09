@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.content.Context
 import android.graphics.Canvas

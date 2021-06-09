@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.os.Bundle
 import android.util.Log
@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class FavoritesListFragment() : Fragment() {
@@ -20,16 +20,6 @@ class FavoritesListFragment() : Fragment() {
 
     companion object {
         const val TAG = "FavoritesListFragment"
-        private const val FAV_ITEMS = "FAV_ITEMS"
-
-//        fun newInstance(favoriteItems: MutableList<MovieItem>): Fragment {
-//            val args = Bundle()
-//            args.putParcelableArrayList(FAV_ITEMS, ArrayList(favoriteItems))
-//
-//            val fragment = FavoritesListFragment()
-//            fragment.arguments = args
-//            return fragment
-//        }
     }
 
     override fun onCreateView(
@@ -42,8 +32,6 @@ class FavoritesListFragment() : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //items = arguments?.getParcelableArrayList<MovieItem>(FAV_ITEMS)?.toMutableList()!!
-
         val listener: OnMovieClickListener = object:
             OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
@@ -54,6 +42,8 @@ class FavoritesListFragment() : Fragment() {
 
             override fun onFavoriteClick(movieItem: Movie, position:Int) {
                 //items.remove(movieItem)
+                //TODO как удалить из фрагмента?
+                viewModel.setFavorite(movieItem.id, false)
                 view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemRemoved(position)
                 Toast.makeText(requireContext(), "Фильм '${movieItem.title }' удален из избранного", Toast.LENGTH_SHORT).show()
             }
@@ -63,7 +53,7 @@ class FavoritesListFragment() : Fragment() {
         view.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
 
         viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
-            // Update the cached copy of the words in the adapter.
+            // Update the cached copy of the movies in the adapter.
             movies?.let { adapter.setMovies(it) }
         })
 

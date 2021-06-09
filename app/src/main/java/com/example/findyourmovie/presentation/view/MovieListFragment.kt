@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -10,31 +10,19 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.*
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class MovieListFragment: Fragment() {
     private val viewModel: MovieViewModel by activityViewModels()
-    //private lateinit var viewModel: MovieViewModel
 
     companion object {
         const val TAG = "MovieListFragment"
-        private const val ITEMS = "ITEMS"
-
-//        fun newInstance(items: MutableList<MovieItem>): MovieListFragment {
-//            val args = Bundle()
-//            args.putParcelableArrayList(ITEMS, ArrayList(items))
-//
-//            val fragment = MovieListFragment()
-//            fragment.arguments = args
-//            return fragment
-//        }
     }
 
     override fun onCreateView(
@@ -46,8 +34,6 @@ class MovieListFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //val items: MutableList<MovieItem> = arguments?.getParcelableArrayList<MovieItem>(ITEMS)?.toMutableList()!!
-
         val listener: OnMovieClickListener = object: OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
                 movieItem.isVisited = true
@@ -56,35 +42,27 @@ class MovieListFragment: Fragment() {
             }
 
             override fun onFavoriteClick(movieItem: Movie, position: Int) {
-                movieItem.isFavorite = !movieItem.isFavorite
+                val newValue: Boolean = !movieItem.isFavorite
+
+                movieItem.isFavorite = newValue
                 view.findViewById<RecyclerView>(R.id.recyclerView).adapter?.notifyItemChanged(position)
-                Toast.makeText(requireContext(), "Фильм '${movieItem.title }' добавлен в избранное", Toast.LENGTH_SHORT).show()
+
+                viewModel.setFavorite(movieItem.id, newValue)
+
+                var notificationText = "Фильм '${movieItem.title }' добавлен в избранное"
+                if(!newValue){
+                    notificationText = "Фильм '${movieItem.title }' удален из избранного"
+                }
+                Toast.makeText(requireContext(), notificationText, Toast.LENGTH_SHORT).show()
             }
         }
 
-        //val adapter = MovieAdapter(LayoutInflater.from(requireContext()), items, listener)
         val adapter = MovieAdapter(LayoutInflater.from(requireContext()), listener)
 
         initRecycler(adapter)
 
-//        viewModel.repos.observe(viewLifecycleOwner, Observer<List<Repo>> { repos ->
-//            adapter.setItems(repos)
-//        })
-//
-//        viewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
-//            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-//        })
-
-
-        // Get a new or existing ViewModel from the ViewModelProvider.
-        //viewModel = ViewModelProvider(this).get(MovieViewModel::class.java)
-
-        // Add an observer on the LiveData returned by getAlphabetizedWords.
-        // The onChanged() method fires when the observed data changes and the activity is
-        // in the foreground.
-
         viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
-            // Update the cached copy of the words in the adapter.
+            // Update the cached copy of the movies in the adapter.
             movies?.let { adapter.setMovies(it) }
         })
     }

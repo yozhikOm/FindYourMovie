@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,16 +8,20 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.findyourmovie.R
+import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieItem
 
 class MovieDetailsFragment: Fragment() {
+    //private val viewModel: MovieViewModel by activityViewModels()
+
     companion object {
         const val TAG = "MovieDetailsFragment"
         private const val EXTRA_MOVIE = "EXTRA_MOVIE"
         private const val EXTRA_COMMENT = "EXTRA_COMMENT"
         private const val EXTRA_IS_LIKED = "EXTRA_IS_LIKED"
 
-        fun newInstance(movieItem: MovieItem): MovieDetailsFragment {
+        fun newInstance(movieItem: Movie): MovieDetailsFragment {
             val args = Bundle()
             args.putParcelable(EXTRA_MOVIE, movieItem)
             
@@ -44,7 +48,17 @@ class MovieDetailsFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val movieItem: MovieItem? = arguments?.getParcelable<MovieItem>(EXTRA_MOVIE)
+        val movieItem: Movie? = arguments?.getParcelable<Movie>(EXTRA_MOVIE)
+
+//        val movie = Word(data.getStringExtra(NewWordActivity.EXTRA_REPLY))
+//        wordViewModel.insert(word)
+//        Unit
+
+//        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
+//            // Update the cached copy of the movies in the adapter.
+//            movies?.let { adapter.setMovies(it) }
+//        })
+
         view.findViewById<TextView>(R.id.titleTxtView).text = movieItem?.title//arguments?.getString(EXTRA_TITLE, "some title")
         view.findViewById<TextView>(R.id.detailsTxtView).text = movieItem?.details//arguments?.getString(EXTRA_DETAILS, "some details")
         movieItem?.cover?.let {
@@ -63,12 +77,5 @@ class MovieDetailsFragment: Fragment() {
             startActivity(sendIntent)
         }
 
-//        backBtn.setOnClickListener {
-//            val intent = Intent()
-//            intent.putExtra(DetailsActivity.EXTRA_IS_LIKED, likeItCheckBox.isChecked.toString())
-//            intent.putExtra(DetailsActivity.EXTRA_COMMENT, commentEdtView.text.toString())
-//            setResult(AppCompatActivity.RESULT_OK, intent)
-//            finish()
-//        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 
 class MovieAdapter(private val layoutInflater: LayoutInflater,
                    //private var items: MutableList<MovieItem>, //List<Movie>,

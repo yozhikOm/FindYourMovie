@@ -38,4 +38,12 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     fun insert(movie: Movie) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(movie)
     }
+
+    fun getMovie(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+        repository.getMovie(id)
+    }
+
+    fun setFavorite(id: Int, isFavorite: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+        repository.setFavorite(id, isFavorite)
+    }
 }

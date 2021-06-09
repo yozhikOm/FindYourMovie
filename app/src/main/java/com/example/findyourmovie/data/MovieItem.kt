@@ -10,6 +10,7 @@ data class MovieItem(val id: Int, val title: String, val details: String, val co
     Parcelable {
 }
 
+@Parcelize
 @Entity(tableName = "Movies")
 data class Movie(
     @PrimaryKey(autoGenerate = true)
@@ -19,4 +20,4 @@ data class Movie(
     val cover: Int,
     var isFavorite: Boolean,
     var isVisited: Boolean
-)
+): Parcelable {}

@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import android.app.Activity
 import android.view.View
@@ -7,8 +7,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 
 class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val header = itemView.findViewById<TextView>(R.id.header)

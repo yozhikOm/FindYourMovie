@@ -1,4 +1,4 @@
-package com.example.findyourmovie
+package com.example.findyourmovie.presentation.view
 
 import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieItem

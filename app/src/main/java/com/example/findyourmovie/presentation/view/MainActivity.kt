@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*

@@ -11,8 +11,8 @@ class MovieRepository(private val movieDao: MovieDao) {
 
     // Room executes all queries on a separate thread.
     // Observed LiveData will notify the observer when the data has changed.
-    val allMovies: LiveData<List<Movie>> = movieDao.getAll()
-    val favoriteMovies: LiveData<List<Movie>> = movieDao.getFavorites()
+    val allMovies: LiveData<List<MovieDB>> = movieDao.getAll()
+    val favoriteMovies: LiveData<List<MovieDB>> = movieDao.getFavorites()
 
     // You must call this on a non-UI thread or your app will crash. So we're making this a
     // suspend function so the caller methods know this.
@@ -20,7 +20,7 @@ class MovieRepository(private val movieDao: MovieDao) {
     // thread, blocking the UI.
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(movie: Movie) {
+    suspend fun insert(movie: MovieDB) {
         movieDao.addMovie(movie)
     }
 

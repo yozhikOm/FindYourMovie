@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.data.MovieMapper
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class FavoritesListFragment() : Fragment() {
@@ -49,9 +50,22 @@ class FavoritesListFragment() : Fragment() {
 
         view.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
 
+//        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
+//            // Update the cached copy of the movies in the adapter.
+//            movies?.let { adapter.setMovies(it) }
+//        })
         viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
             // Update the cached copy of the movies in the adapter.
-            movies?.let { adapter.setMovies(it) }
+
+            movies?.let {
+                val mapper = MovieMapper();
+                val transformedMovies: MutableList<Movie> = ArrayList()
+                it.forEach{ mdb ->
+                    val movie: Movie = mapper.transformFromDBModelToModel(mdb)
+                    transformedMovies.add(movie)
+                }
+                adapter.setMovies(transformedMovies)
+            }
         })
 
     }

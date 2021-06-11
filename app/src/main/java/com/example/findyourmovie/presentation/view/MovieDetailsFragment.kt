@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieItem
 
 class MovieDetailsFragment: Fragment() {
     companion object {
@@ -57,7 +56,7 @@ class MovieDetailsFragment: Fragment() {
         }
 
         view.findViewById<View>(R.id.inviteFriendBtn).setOnClickListener {
-            val movieItem: MovieItem? = arguments?.getParcelable<MovieItem>(EXTRA_MOVIE)
+            val movieItem: Movie? = arguments?.getParcelable<Movie>(EXTRA_MOVIE)
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, "Hey, buddy, I recommend you to watch this movie! - " + movieItem?.title)

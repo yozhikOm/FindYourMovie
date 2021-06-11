@@ -7,23 +7,23 @@ import androidx.room.*
 interface MovieDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addMovie(movie: Movie)
+    fun addMovie(movie: MovieDB)
 
 //    @Delete()
 //    fun deleteMovie(movieID: Int)
 
     @Query("SELECT * from Movies")
-    fun getAll(): LiveData<List<Movie>>
+    fun getAll(): LiveData<List<MovieDB>>
 
     @Query("SELECT * from Movies WHERE isFavorite=1")
-    fun getFavorites(): LiveData<List<Movie>>
+    fun getFavorites(): LiveData<List<MovieDB>>
 
     @Query("SELECT * from Movies WHERE id=:id")
-    fun getMovie(id: Int): LiveData<Movie>
+    fun getMovie(id: Int): LiveData<MovieDB>
 
     //TODO Как делать SET в таком случае? ругается на точку в =:movie.isFavorite
     //@Query("UPDATE Movies SET [isFavorite]=:movie.isFavorite WHERE id=:movie.id")
-    //fun updateMovie(movie: Movie)
+    //fun updateMovie(movie: MovieDB)
 
     @Query("UPDATE Movies SET isFavorite=:isFavorite WHERE id=:id")
     fun setFavorite(id: Int, isFavorite: Boolean)

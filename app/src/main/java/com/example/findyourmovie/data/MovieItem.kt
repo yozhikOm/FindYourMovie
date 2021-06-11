@@ -6,13 +6,12 @@ import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class MovieItem(val id: Int, val title: String, val details: String, val cover: Int, var isFavorite: Boolean, var isVisited: Boolean):
+data class Movie(val id: Int, val title: String, val details: String, val cover: Int, var isFavorite: Boolean, var isVisited: Boolean):
     Parcelable {
 }
 
-@Parcelize
 @Entity(tableName = "Movies")
-data class Movie(
+data class MovieDB(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val title: String,
@@ -20,4 +19,6 @@ data class Movie(
     val cover: Int,
     var isFavorite: Boolean,
     var isVisited: Boolean
-): Parcelable {}
+)
+
+

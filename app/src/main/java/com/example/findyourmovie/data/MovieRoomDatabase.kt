@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = arrayOf(Movie::class), version = 1)
+@Database(entities = arrayOf(MovieDB::class), version = 1)
 abstract class MovieRoomDatabase(): RoomDatabase() {
     abstract fun getMovieDao(): MovieDao
 
@@ -69,7 +69,7 @@ abstract class MovieRoomDatabase(): RoomDatabase() {
             // Not needed if you only populate on creation.
             movieDao.deleteAll()
 
-            var movie = Movie(
+            var movie = MovieDB(
                 title = "Мортал Комбат",
                 details = "Боец смешанных единоборств Коул Янг не раз соглашался проиграть за деньги. Он не знает о своем наследии и почему император Внешнего Мира Шан Цзун посылает своего лучшего воина, могущественного криомансера Саб-Зиро, на охоту за Коулом. Янг боится за безопасность своей семьи, и майор спецназа Джакс, обладатель такой же отметки в виде дракона, как и у Коула, советует ему отправиться на поиски Сони Блейд. Вскоре он оказывается в храме Лорда Рейдена, Старшего Бога и защитника Земного Царства, который дает убежище тем, кто носит метку.",
                 cover =  R.drawable.mortal_combat,
@@ -78,7 +78,7 @@ abstract class MovieRoomDatabase(): RoomDatabase() {
             )
             movieDao.addMovie(movie)
 
-            movie = Movie(
+            movie = MovieDB(
                 title = "Поступь хаоса",
                 details = "2257 год. Родина Тодда Хьюитта — колонизированная планета Новый Мир, где мысли мужчин имеют визуально-звуковое воплощение и называются шумом. Парень живёт в небольшой деревне, населённой исключительно мужчинами, и ещё не научился скрывать свои мысли от окружающих. Однажды над планетой терпит крушение корабль-разведчик из второй волны колонистов, в результате чего Тодд впервые в сознательной жизни видит девушку. Местный мэр решет использовать её в своих коварных планах, но девушка сбегает, и теперь без помощи Тодда ей не обойтись.",
                 cover = R.drawable.chaos_walking,

@@ -4,9 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieRepository
-import com.example.findyourmovie.data.MovieRoomDatabase
+import com.example.findyourmovie.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -22,8 +20,8 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
-    val allMovies: LiveData<List<Movie>>
-    val favoriteMovies: LiveData<List<Movie>>
+    val allMovies: LiveData<List<MovieDB>>
+    val favoriteMovies: LiveData<List<MovieDB>>
 
     init {
         val moviesDao = MovieRoomDatabase.getDatabase(application, viewModelScope).getMovieDao()
@@ -35,7 +33,8 @@ class MovieViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Launching a new coroutine to insert the data in a non-blocking way
      */
-    fun insert(movie: Movie) = viewModelScope.launch(Dispatchers.IO) {
+
+    fun insert(movie: MovieDB) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(movie)
     }
 

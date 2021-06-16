@@ -1,7 +1,9 @@
-package com.example.findyourmovie.data
+package com.example.findyourmovie.data.repositories
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import com.example.findyourmovie.data.MovieDB
+import com.example.findyourmovie.data.MovieDao
 
 /**
  * Abstracted Repository as promoted by the Architecture Guide.

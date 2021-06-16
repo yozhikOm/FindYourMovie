@@ -16,11 +16,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.findyourmovie.*
 import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.data.MovieNetwork
 import com.example.findyourmovie.data.MovieMapper
+import com.example.findyourmovie.presentation.viewmodel.MovieNetworkViewModel
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class MovieListFragment: Fragment() {
     private val viewModel: MovieViewModel by activityViewModels()
+    private val networkViewModel: MovieNetworkViewModel by activityViewModels()
 
     companion object {
         const val TAG = "MovieListFragment"
@@ -59,18 +62,36 @@ class MovieListFragment: Fragment() {
 
         initRecycler(adapter)
 
-        viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
-            // Update the cached copy of the movies in the adapter.
+//        viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
+//            // Update the cached copy of the movies in the adapter.
+//
+//            movies?.let {
+//                val mapper = MovieMapper();
+//                val transformedMovies: MutableList<Movie> = ArrayList()
+//                it.forEach{ dbMovie ->
+//                    val movie: Movie = mapper.transformFromDBModelToModel(dbMovie)
+//                    transformedMovies.add(movie)
+//                }
+//                adapter.setMovies(transformedMovies)
+//            }
+//        })
 
+        networkViewModel.onGetDataClick()
+
+        networkViewModel.movies.observe(viewLifecycleOwner, Observer<List<MovieNetwork>> { movies ->
             movies?.let {
-                val mapper = MovieMapper();
+                val mapper = MovieMapper()
                 val transformedMovies: MutableList<Movie> = ArrayList()
-                it.forEach{ mdb ->
-                    val movie: Movie = mapper.transformFromDBModelToModel(mdb)
+                it.forEach{ jsonMovie ->
+                    val movie: Movie = mapper.transformFromNetworkModelToModel(jsonMovie)
                     transformedMovies.add(movie)
                 }
                 adapter.setMovies(transformedMovies)
             }
+        })
+
+        networkViewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
         })
     }
 

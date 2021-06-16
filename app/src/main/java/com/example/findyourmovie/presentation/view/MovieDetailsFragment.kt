@@ -49,11 +49,11 @@ class MovieDetailsFragment: Fragment() {
 
         view.findViewById<TextView>(R.id.titleTxtView).text = movieItem?.title
         view.findViewById<TextView>(R.id.detailsTxtView).text = movieItem?.details
-        movieItem?.cover?.let {
-            view.findViewById<ImageView>(R.id.coverImg).setImageResource(
-                it
-            )
-        }
+//        movieItem?.cover?.let {
+//            view.findViewById<ImageView>(R.id.coverImg).setImageResource(
+//                it
+//            )
+//        }
 
         view.findViewById<View>(R.id.inviteFriendBtn).setOnClickListener {
             val movieItem: Movie? = arguments?.getParcelable<Movie>(EXTRA_MOVIE)

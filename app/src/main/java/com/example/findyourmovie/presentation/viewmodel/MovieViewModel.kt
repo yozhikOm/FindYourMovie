@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.findyourmovie.data.*
+import com.example.findyourmovie.data.repositories.MovieRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

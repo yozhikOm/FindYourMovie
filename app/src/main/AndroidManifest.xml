@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.findyourmovie">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -10,6 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data android:name="api_key" android:value="c058d9a291e7f1dd69f97f1afac69b61"/>
+        <meta-data android:name="api_url" android:value="https://api.themoviedb.org/3/"/>
+        <meta-data android:name="img_url" android:value="http://image.tmdb.org/t/p/w500"/>
         <activity android:name=".presentation.view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

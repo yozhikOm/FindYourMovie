@@ -7,8 +7,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.utils.Helper
 
 class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val header = itemView.findViewById<TextView>(R.id.header)
@@ -27,7 +29,7 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val title = itemView.findViewById<TextView>(R.id.movieTitle)
     private val favIcon = itemView.findViewById<ImageView>(R.id.favoriteImg)
     private val details = itemView.findViewById<TextView>(R.id.details)
-    private val cover = itemView.findViewById<ImageView>(R.id.cover)
+    private val poster = itemView.findViewById<ImageView>(R.id.poster)
 
     fun bind(movie: Movie) {
         //TODO как определить, какой фрагмент сейчас активный?
@@ -52,7 +54,8 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         title.text = movie.title
         details.text = movie.details
-        cover.setImageResource(movie.cover)
+        val imgUrl: String = Helper.getMetaData(itemView.context, "img_url")!!
+        Glide.with(itemView.context).load("${imgUrl}${movie.posterPath}").into(poster)
     }
 
 }

@@ -54,8 +54,13 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         title.text = movie.title
         details.text = movie.details
-        val imgUrl: String = Helper.getMetaData(itemView.context, "img_url")!!
-        Glide.with(itemView.context).load("${imgUrl}${movie.posterPath}").into(poster)
+        if(movie.posterPath != null) {
+            val imgUrl: String = Helper.getMetaData(itemView.context, "img_url")!!
+            Glide.with(itemView.context).load("${imgUrl}${movie.posterPath}").into(poster)
+        }
+        else {
+            poster.setImageResource(R.drawable.ic_baseline_local_movies_24)
+        }
     }
 
 }

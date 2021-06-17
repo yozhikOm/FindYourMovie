@@ -40,7 +40,7 @@ class MovieListFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val listener: OnMovieClickListener = object: OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
-                viewModel.setVisited(movieItem.id, true)
+                //viewModel.setVisited(movieItem.id, true)
 
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }

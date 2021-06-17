@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
+import com.example.findyourmovie.utils.Helper
 
-class MovieDetailsFragment: Fragment() {
+class MovieDetailsFragment : Fragment() {
     companion object {
         const val TAG = "MovieDetailsFragment"
         private const val EXTRA_MOVIE = "EXTRA_MOVIE"
@@ -21,7 +23,7 @@ class MovieDetailsFragment: Fragment() {
         fun newInstance(movieItem: Movie): MovieDetailsFragment {
             val args = Bundle()
             args.putParcelable(EXTRA_MOVIE, movieItem)
-            
+
             val fragment = MovieDetailsFragment()
             fragment.arguments = args
             return fragment
@@ -49,17 +51,24 @@ class MovieDetailsFragment: Fragment() {
 
         view.findViewById<TextView>(R.id.titleTxtView).text = movieItem?.title
         view.findViewById<TextView>(R.id.detailsTxtView).text = movieItem?.details
-//        movieItem?.cover?.let {
-//            view.findViewById<ImageView>(R.id.coverImg).setImageResource(
-//                it
-//            )
-//        }
+
+        if(movieItem?.posterPath != null) {
+            val imgUrl: String = Helper.getMetaData(requireContext(), "img_url")!!
+            Glide.with(requireContext()).load("${imgUrl}${movieItem?.posterPath}")
+                .into(view.findViewById<ImageView>(R.id.posterImg))
+        }
+        else {
+            view.findViewById<ImageView>(R.id.posterImg).setImageResource(R.drawable.ic_baseline_local_movies_24)
+        }
 
         view.findViewById<View>(R.id.inviteFriendBtn).setOnClickListener {
             val movieItem: Movie? = arguments?.getParcelable<Movie>(EXTRA_MOVIE)
             val sendIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "Hey, buddy, I recommend you to watch this movie! - " + movieItem?.title)
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "Hey, buddy, I recommend you to watch this movie! - " + movieItem?.title
+                )
                 type = "text/plain"
             }
             startActivity(sendIntent)

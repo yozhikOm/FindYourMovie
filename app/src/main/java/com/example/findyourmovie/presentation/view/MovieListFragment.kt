@@ -76,7 +76,7 @@ class MovieListFragment: Fragment() {
 //            }
 //        })
 
-        networkViewModel.onGetDataClick()
+        networkViewModel.onGetData()
 
         networkViewModel.movies.observe(viewLifecycleOwner, Observer<List<MovieNetwork>> { movies ->
             movies?.let {

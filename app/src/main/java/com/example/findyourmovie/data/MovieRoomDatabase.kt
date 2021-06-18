@@ -62,7 +62,7 @@ abstract class MovieRoomDatabase(): RoomDatabase() {
 
         /**
          * Populate the database in a new coroutine.
-         * If you want to start with more words, just add them.
+         * If you want to start with more movies, just add them.
          */
         fun populateDatabase(movieDao: MovieDao) {
             // Start the app with a clean database every time.

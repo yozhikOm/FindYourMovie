@@ -36,10 +36,10 @@ class MovieMapper : Mapper<Movie, MovieDB, MovieNetwork> {
     )
 
     override fun transformFromNetworkModelToModel(src: MovieNetwork) = Movie(
-        id = 1,
+        id = src.id,
         title = src.title,
         details = src.overview,
-        posterPath = src.posterPath,//Resources.ID_NULL,
+        posterPath = src.posterPath,
         isFavorite = false,
         isVisited = false
     )

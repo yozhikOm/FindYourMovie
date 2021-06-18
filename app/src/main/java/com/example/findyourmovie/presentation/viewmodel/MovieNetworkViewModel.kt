@@ -16,7 +16,7 @@ class MovieNetworkViewModel : ViewModel() {
         Log.d("MovieNetworkViewModel", this.toString())
     }
 
-    private val githubInteractor = App.instance.moviesHubInteractor
+    private val moviesHubInteractor = App.instance.moviesHubInteractor
 
     private val mMovies = MutableLiveData<List<MovieNetwork>>()
     private val mError: MutableLiveData<String> = SingleLiveEvent()
@@ -30,8 +30,8 @@ class MovieNetworkViewModel : ViewModel() {
 
     val selectedRepoUrl: LiveData<String> = mSelectedRepoUrl
 
-    fun onGetDataClick() {
-        githubInteractor.getMovies(1, object : MoviesHubInteractor.GetMoviesCallback {
+    fun onGetData() {
+        moviesHubInteractor.getMovies(1, object : MoviesHubInteractor.GetMoviesCallback {
             override fun onSuccess(movies: List<MovieNetwork>) {
                 mMovies.value = movies
             }

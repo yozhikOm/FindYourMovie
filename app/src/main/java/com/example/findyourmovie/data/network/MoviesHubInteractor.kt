@@ -15,7 +15,7 @@ class MoviesHubInteractor(
     private val moviesHubService: MoviesHubAPI,
     private val movieNetworkRepository: MovieNetworkRepository
 ) {
-    fun getMovies(page: Int = 1, callback: GetMoviesCallback) {
+    fun getMovies(page: Int, callback: GetMoviesCallback) {
         moviesHubService.getMovies(Helper.getMetaData(context, "api_key")!!, page)
             .enqueue(object : Callback<PopularMovies> {
                 override fun onResponse(

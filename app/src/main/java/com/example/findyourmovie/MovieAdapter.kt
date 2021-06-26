@@ -7,12 +7,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 
-interface OnMovieClickListener {
-    fun onDetailsClick(item: MovieItem, position: Int)
-    fun onFavoriteClick(item: MovieItem, position: Int)
-}
-
-class MovieAdapter(private val items: List<MovieItem>, private val clickListener: OnMovieClickListener) :
+class MovieAdapter(private val layoutInflater: LayoutInflater,
+                   private val items: MutableList<MovieItem>,
+                   private val clickListener: OnMovieClickListener
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TAG = "MovieAdapter"

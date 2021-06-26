@@ -1,30 +1,22 @@
 package com.example.findyourmovie
 
-import android.app.Activity
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import java.io.Serializable
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(), OnMovieClickListener {
+class MainActivity : AppCompatActivity(), OnDetailsClickListener {
     companion object {
-        private const val RESULT_CODE_DETAILS = 333
+        private const val ITEMS = "ITEMS"
+        private const val ACTIVE_FRAGMENT = "ACTIVE_FRAGMENT"
     }
-
-    private val recycler by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
 
     //region items lists
     private var items = mutableListOf(
@@ -151,37 +143,85 @@ class MainActivity : AppCompatActivity(), OnMovieClickListener {
     )
     //endregion
 
+    private val bottomNavigationView by lazy { findViewById<BottomNavigationView>(R.id.bottom_navigation_view) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        savedInstanceState?.let {
-            items = it.getParcelableArrayList("EXTRA_ITEMS")!!
+        bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        if (savedInstanceState != null) {
+            items = savedInstanceState.getParcelableArrayList(ITEMS)!!
+
+            val activeFragmentTag = savedInstanceState.getString(ACTIVE_FRAGMENT)
+            if (activeFragmentTag == null) {
+                showMovieList()
+            } else if (activeFragmentTag == "FavListFragment") {
+                showFavoritesList()
+            }
+        } else {
+            showMovieList()
         }
-        initRecycler()
+    }
+
+    private fun showMovieList() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                MovieListFragment.newInstance(items),
+                MovieListFragment.TAG
+            )
+            .commit()
+    }
+
+    private fun showMovieDetails(item: MovieItem) {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                MovieDetailsFragment.newInstance(item),
+                MovieDetailsFragment.TAG
+            )
+            .addToBackStack("DetailsFragment")
+            .commit()
+    }
+
+    private fun showFavoritesList() {
+        val favoriteItems = items.filter { it.isFavorite }.toMutableList()
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(
+                R.id.fragmentContainer,
+                FavoritesListFragment.newInstance(favoriteItems),
+                FavoritesListFragment.TAG
+            )
+            .addToBackStack("FavListFragment")
+            .commit()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putParcelableArrayList("EXTRA_ITEMS", ArrayList(items))
+        outState.putParcelableArrayList(ITEMS, ArrayList(items))
+
+        val activeFragmentTag: String? = getVisibleFragmentTag()
+        outState.putString(ACTIVE_FRAGMENT, activeFragmentTag)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if(requestCode == RESULT_CODE_DETAILS) {
-            if(resultCode == Activity.RESULT_OK) {
-                val favItems =  data?.getSerializableExtra("EXTRA_FAVORITES_LIST") as ArrayList<MovieItem>
-                items.forEach { movie ->
-                    val foundItem = favItems.firstOrNull { fav ->
-                        fav.id == movie.id
-                    }
-                    movie.isFavorite = foundItem != null
-                }
-                initRecycler()
+    private fun getVisibleFragmentTag(): String? {
+        for (fragment in supportFragmentManager.fragments) {
+            if (fragment != null && fragment.isVisible) {
+                return fragment.tag
             }
         }
+        return null
+    }
+
+    override fun onDetailsClick(movieItem: MovieItem, position: Int) {
+        showMovieDetails(movieItem)
     }
 
     //region Menu
@@ -212,59 +252,49 @@ class MainActivity : AppCompatActivity(), OnMovieClickListener {
 
                 true
             }
-            R.id.action_favorites -> {
-                val favoriteItems = items.filter{it.isFavorite}
 
-                val intent = Intent(this, FavoritesActivity::class.java)
-                intent.putExtra("EXTRA_FAVORITES_LIST", favoriteItems as Serializable)
-                startActivityForResult(intent, RESULT_CODE_DETAILS)
-                true
-            }
             else -> super.onOptionsItemSelected(item)
         }
     }
     //endregion
 
-    private fun initRecycler() {
-        val linearLayoutManager = LinearLayoutManager(this)
-        val gridLayoutManager = GridLayoutManager(this, 2)
-
-        gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if (position == 0) gridLayoutManager.spanCount else 1
+    //region Botton Navigation
+    private val onNavigationItemSelectedListener =
+        BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.navigationHome -> {
+                    showMovieList()
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigationFavorites -> {
+                    showFavoritesList()
+                    return@OnNavigationItemSelectedListener true
+                }
             }
+            false
         }
-        val orientation = this.resources.configuration.orientation
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            recycler.layoutManager = linearLayoutManager
-        } else {
-            recycler.layoutManager = gridLayoutManager
-        }
-
-        recycler.adapter = MovieAdapter(items, this)
-
-        val itemDecoration = CustomItemDecoration(this, DividerItemDecoration.VERTICAL)
-        itemDecoration.setDrawable(getDrawable(R.drawable.line_4dp_grey)!!)
-        recycler.addItemDecoration(itemDecoration)
-    }
-
-    override fun onDetailsClick(item: MovieItem, position: Int) {
-        item.isVisited = true
-        recycler.adapter?.notifyItemChanged(position)
-
-        val intent = Intent(this, DetailsActivity::class.java)
-        intent.putExtra("EXTRA_MOVIE", item)
-        startActivityForResult(intent, RESULT_CODE_DETAILS)
-    }
-
-    override fun onFavoriteClick(item: MovieItem, position: Int) {
-        //Toast.makeText(this, "clicked ${item.title} $position", Toast.LENGTH_SHORT).show()
-        item.isFavorite = !item.isFavorite
-        recycler.adapter?.notifyItemChanged(position)
-    }
+    //endregion
 
     override fun onBackPressed() {
-        ExitDialog().show(supportFragmentManager, "dialog")
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            when (getVisibleFragmentTag()) {
+                "MovieListFragment" -> ExitDialog().show(supportFragmentManager, "dialog")
+                "FavoritesListFragment" -> {
+                    val favFragment: FavoritesListFragment =
+                        supportFragmentManager.findFragmentByTag("FavoritesListFragment") as FavoritesListFragment
+                    val favItems = favFragment.items
+                    items.forEach { movie ->
+                        val foundItem = favItems.firstOrNull { fav ->
+                            fav.id == movie.id
+                        }
+                        movie.isFavorite = foundItem != null
+                    }
+                }
+            }
+            supportFragmentManager.popBackStack()
+        } else {
+            ExitDialog().show(supportFragmentManager, "dialog")
+        }
     }
 
 

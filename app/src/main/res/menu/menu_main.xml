@@ -13,11 +13,4 @@
         android:title="Ru"
         app:showAsAction="never"
         />
-    <item
-        android:id="@+id/action_favorites"
-        android:orderInCategory="100"
-        android:title="Favorites"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_heart_red_24dp"
-        />
 </menu>

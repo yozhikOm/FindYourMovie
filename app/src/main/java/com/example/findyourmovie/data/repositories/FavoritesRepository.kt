@@ -2,19 +2,18 @@ package com.example.findyourmovie.data.repositories
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import com.example.findyourmovie.data.MovieDB
-import com.example.findyourmovie.data.db.MovieDao
+import com.example.findyourmovie.data.FavMovieDB
+import com.example.findyourmovie.data.db.FavoritesDao
 
 /**
  * Abstracted Repository as promoted by the Architecture Guide.
  * https://developer.android.com/topic/libraries/architecture/guide.html
  */
-class MovieRepository(private val movieDao: MovieDao) {
+class FavoritesRepository(private val favoritesDao: FavoritesDao) {
 
     // Room executes all queries on a separate thread.
     // Observed LiveData will notify the observer when the data has changed.
-    val allMovies: LiveData<List<MovieDB>> = movieDao.getAll()
-    val favoriteMovies: LiveData<List<MovieDB>> = movieDao.getFavorites()
+    val favoriteMovies: LiveData<List<FavMovieDB>> = favoritesDao.getAll()
 
     // You must call this on a non-UI thread or your app will crash. So we're making this a
     // suspend function so the caller methods know this.
@@ -22,31 +21,25 @@ class MovieRepository(private val movieDao: MovieDao) {
     // thread, blocking the UI.
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(movie: MovieDB) {
-        movieDao.addMovie(movie)
+    suspend fun insert(movie: FavMovieDB) {
+        favoritesDao.addMovie(movie)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    fun insertAll(movies: ArrayList<MovieDB>) {
-        movieDao.addMovies(movies)
+    suspend fun delete(id: Int) {
+        favoritesDao.deleteMovie(id)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun getMovie(id: Int) {
-        movieDao.getMovie(id)
-    }
-
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
-    suspend fun setFavorite(id: Int, isFavorite: Boolean) {
-        movieDao.setFavorite(id, isFavorite)
+        favoritesDao.getMovie(id)
     }
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun setVisited(id: Int, isVisited: Boolean) {
-        movieDao.setVisited(id, isVisited)
+        favoritesDao.setVisited(id, isVisited)
     }
 }

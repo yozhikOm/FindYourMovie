@@ -1,33 +1,33 @@
-package com.example.findyourmovie.data
+package com.example.findyourmovie.data.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.findyourmovie.R
+import com.example.findyourmovie.data.MovieDB
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(entities = arrayOf(MovieDB::class), version = 1)
-abstract class MovieRoomDatabase(): RoomDatabase() {
+abstract class MoviesDatabase(): RoomDatabase() {
     abstract fun getMovieDao(): MovieDao
 
     companion object {
         @Volatile
-        private var INSTANCE: MovieRoomDatabase? = null
+        private var INSTANCE: MoviesDatabase? = null
 
         fun getDatabase(
             context: Context,
             scope: CoroutineScope
-        ): MovieRoomDatabase {
+        ): MoviesDatabase {
             // if the INSTANCE is not null, then return it,
             // if it is, then create the database
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    MovieRoomDatabase::class.java,
+                    MoviesDatabase::class.java,
                     "movies_database.db"
                 )
                     // Wipes and rebuilds instead of migrating if no Migration object.
@@ -54,7 +54,7 @@ abstract class MovieRoomDatabase(): RoomDatabase() {
                 // comment out the following line.
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.getMovieDao())
+                        //populateDatabase(database.getMovieDao())
                     }
                 }
             }

@@ -18,7 +18,6 @@ class HeaderVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     fun bind() {
         if (itemView.context as Activity is MainActivity) {
             header.setText(R.string.movies)
-        //TODO как задать др.заголовок во фрагменте?
         } else if (itemView.context as Fragment is FavoritesListFragment) {
             header.setText(R.string.favorites)
         }

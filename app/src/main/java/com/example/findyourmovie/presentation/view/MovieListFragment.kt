@@ -16,14 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.findyourmovie.*
 import com.example.findyourmovie.data.Movie
-import com.example.findyourmovie.data.MovieNetwork
 import com.example.findyourmovie.data.MovieMapper
-import com.example.findyourmovie.presentation.viewmodel.MovieNetworkViewModel
+import com.example.findyourmovie.presentation.viewmodel.FavoritesViewModel
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class MovieListFragment: Fragment() {
     private val viewModel: MovieViewModel by activityViewModels()
-    private val networkViewModel: MovieNetworkViewModel by activityViewModels()
+    private val favViewModel: FavoritesViewModel by activityViewModels()
 
     companion object {
         const val TAG = "MovieListFragment"
@@ -38,9 +37,10 @@ class MovieListFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val mapper = MovieMapper()
         val listener: OnMovieClickListener = object: OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
-                //viewModel.setVisited(movieItem.id, true)
+                viewModel.setVisited(movieItem.id, true)
 
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }
@@ -48,12 +48,15 @@ class MovieListFragment: Fragment() {
             override fun onFavoriteClick(movieItem: Movie, position: Int) {
                 val newValue: Boolean = !movieItem.isFavorite
 
-                viewModel.setFavorite(movieItem.id, newValue)
-
-                var notificationText = "Фильм '${movieItem.title }' добавлен в избранное"
-                if(!newValue){
-                    notificationText = "Фильм '${movieItem.title }' удален из избранного"
+                var notificationText = if(newValue){
+                    favViewModel.insert(mapper.transformFromModelToFavDBModel(movieItem))
+                    "Фильм '${movieItem.title }' добавлен в избранное"
+                } else{
+                    favViewModel.delete(movieItem.id)
+                    "Фильм '${movieItem.title }' удален из избранного"
                 }
+
+                viewModel.setFavorite(movieItem.id, newValue)
                 Toast.makeText(requireContext(), notificationText, Toast.LENGTH_SHORT).show()
             }
         }
@@ -62,37 +65,22 @@ class MovieListFragment: Fragment() {
 
         initRecycler(adapter)
 
-//        viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
-//            // Update the cached copy of the movies in the adapter.
-//
-//            movies?.let {
-//                val mapper = MovieMapper();
-//                val transformedMovies: MutableList<Movie> = ArrayList()
-//                it.forEach{ dbMovie ->
-//                    val movie: Movie = mapper.transformFromDBModelToModel(dbMovie)
-//                    transformedMovies.add(movie)
-//                }
-//                adapter.setMovies(transformedMovies)
-//            }
-//        })
-
-        networkViewModel.onGetData()
-
-        networkViewModel.movies.observe(viewLifecycleOwner, Observer<List<MovieNetwork>> { movies ->
+        viewModel.getAllMovies()
+        viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
             movies?.let {
-                val mapper = MovieMapper()
                 val transformedMovies: MutableList<Movie> = ArrayList()
-                it.forEach{ jsonMovie ->
-                    val movie: Movie = mapper.transformFromNetworkModelToModel(jsonMovie)
+                it.forEach{ dbMovie ->
+                    val movie: Movie = mapper.transformFromDBModelToModel(dbMovie)
                     transformedMovies.add(movie)
                 }
                 adapter.setMovies(transformedMovies)
             }
         })
 
-        networkViewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
+        viewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
         })
+
     }
 
     private fun initRecycler(adapter: MovieAdapter) {

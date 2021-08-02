@@ -70,10 +70,4 @@ class MovieAdapter(private val layoutInflater: LayoutInflater,
         notifyDataSetChanged()
     }
 
-//    fun setItems(repos: List<Repo>) {
-//        items.clear()
-//        items.addAll(repos)
-//
-//        notifyDataSetChanged()
-//    }
 }

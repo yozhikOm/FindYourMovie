@@ -1,7 +1,8 @@
-package com.example.findyourmovie.data
+package com.example.findyourmovie.data.db
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.example.findyourmovie.data.MovieDB
 
 @Dao
 interface MovieDao {
@@ -9,8 +10,8 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addMovie(movie: MovieDB)
 
-//    @Delete()
-//    fun deleteMovie(movieID: Int)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addMovies(movies: ArrayList<MovieDB>)
 
     @Query("SELECT * from Movies")
     fun getAll(): LiveData<List<MovieDB>>
@@ -20,10 +21,6 @@ interface MovieDao {
 
     @Query("SELECT * from Movies WHERE id=:id")
     fun getMovie(id: Int): LiveData<MovieDB>
-
-    //TODO Как делать SET в таком случае? ругается на точку в =:movie.isFavorite
-    //@Query("UPDATE Movies SET [isFavorite]=:movie.isFavorite WHERE id=:movie.id")
-    //fun updateMovie(movie: MovieDB)
 
     @Query("UPDATE Movies SET isFavorite=:isFavorite WHERE id=:id")
     fun setFavorite(id: Int, isFavorite: Boolean)

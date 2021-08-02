@@ -14,3 +14,13 @@ data class MovieDB(
     var isFavorite: Boolean,
     var isVisited: Boolean
 )
+
+@Entity(tableName = "Favorites")
+data class FavMovieDB(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val title: String,
+    val details: String,
+    val posterPath: String?,
+    var isVisited: Boolean
+)

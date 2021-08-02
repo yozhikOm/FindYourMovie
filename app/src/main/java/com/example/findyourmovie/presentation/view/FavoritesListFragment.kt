@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieMapper
-import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
+import com.example.findyourmovie.presentation.viewmodel.FavoritesViewModel
 
 class FavoritesListFragment() : Fragment() {
-    private val viewModel: MovieViewModel by activityViewModels()
+    private val viewModel: FavoritesViewModel by activityViewModels()
 
     companion object {
         const val TAG = "FavoritesListFragment"
@@ -41,7 +41,7 @@ class FavoritesListFragment() : Fragment() {
             }
 
             override fun onFavoriteClick(movieItem: Movie, position:Int) {
-                viewModel.setFavorite(movieItem.id, false)
+                viewModel.delete(movieItem.id)
 
                 Toast.makeText(requireContext(), "Фильм '${movieItem.title }' удален из избранного", Toast.LENGTH_SHORT).show()
             }
@@ -50,18 +50,13 @@ class FavoritesListFragment() : Fragment() {
 
         view.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
 
-//        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
-//            // Update the cached copy of the movies in the adapter.
-//            movies?.let { adapter.setMovies(it) }
-//        })
         viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
-            // Update the cached copy of the movies in the adapter.
 
             movies?.let {
                 val mapper = MovieMapper();
                 val transformedMovies: MutableList<Movie> = ArrayList()
                 it.forEach{ mdb ->
-                    val movie: Movie = mapper.transformFromDBModelToModel(mdb)
+                    val movie: Movie = mapper.transformFromFavDBModelToModel(mdb)
                     transformedMovies.add(movie)
                 }
                 adapter.setMovies(transformedMovies)

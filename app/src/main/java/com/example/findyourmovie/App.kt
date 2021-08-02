@@ -1,10 +1,13 @@
 package com.example.findyourmovie
 
 import android.app.Application
-import com.example.findyourmovie.data.network.MoviesHubInteractor
+import android.content.Context
+import androidx.room.Room
+import com.example.findyourmovie.data.db.MoviesDatabase
 import com.example.findyourmovie.data.network.MoviesHubAPI
+import com.example.findyourmovie.data.network.MoviesHubInteractor
 import com.example.findyourmovie.data.network.MoviesHubUpdater
-import com.example.findyourmovie.data.repositories.MovieNetworkRepository
+import com.example.findyourmovie.data.repositories.MovieRepository
 import com.example.findyourmovie.utils.Helper
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -12,21 +15,46 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
 class App: Application() {
     lateinit var moviesHubAPI: MoviesHubAPI
     lateinit var moviesHubUpdater: MoviesHubUpdater
     lateinit var moviesHubInteractor: MoviesHubInteractor
-    var movieNetworkRepository = MovieNetworkRepository()
+    lateinit var repository: MovieRepository
+    private var INSTANCE: MoviesDatabase? = null
 
     companion object {
         lateinit var instance: App
             private set
     }
 
+    fun getDatabase(context: Context): MoviesDatabase {
+        // if the INSTANCE is not null, then return it,
+        // if it is, then create the database
+        return INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                MoviesDatabase::class.java,
+                "movies_database.db"
+            )
+                // Wipes and rebuilds instead of migrating if no Migration object.
+                // Migration is not part of this codelab.
+                .fallbackToDestructiveMigration()
+                //.addCallback(MovieRoomDatabase.Companion.MovieDatabaseCallback(scope))
+                .allowMainThreadQueries()
+                .build()
+            INSTANCE = instance
+            return instance
+        }
+    }
     override fun onCreate() {
         super.onCreate()
 
         instance = this
+
+        val db: MoviesDatabase = getDatabase(this)
+        val dao = db.getMovieDao()
+        repository = MovieRepository(dao)
 
         initRetrofit()
         initInteractor()
@@ -51,7 +79,7 @@ class App: Application() {
     }
 
     private fun initInteractor() {
-        moviesHubInteractor = MoviesHubInteractor(this, moviesHubAPI, movieNetworkRepository)
+        moviesHubInteractor = MoviesHubInteractor(this, moviesHubAPI, repository)
     }
 
 }

@@ -2,8 +2,11 @@ package com.example.findyourmovie.data.repositories
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.findyourmovie.data.MovieDB
 import com.example.findyourmovie.data.db.MovieDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 
 /**
  * Abstracted Repository as promoted by the Architecture Guide.
@@ -28,7 +31,7 @@ class MovieRepository(private val movieDao: MovieDao) {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    fun insertAll(movies: ArrayList<MovieDB>) {
+    fun insertAll(movies: List<MovieDB>) {
         movieDao.addMovies(movies)
     }
 
@@ -36,6 +39,12 @@ class MovieRepository(private val movieDao: MovieDao) {
     @WorkerThread
     suspend fun getMovie(id: Int) {
         movieDao.getMovie(id)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getAllMovies() {
+        movieDao.getAll()
     }
 
     @Suppress("RedundantSuspendModifier")

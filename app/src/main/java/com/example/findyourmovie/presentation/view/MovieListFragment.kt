@@ -65,22 +65,18 @@ class MovieListFragment: Fragment() {
 
         initRecycler(adapter)
 
-        viewModel.getAllMovies()
-        viewModel.allMovies.observe(viewLifecycleOwner, Observer { movies ->
-            movies?.let {
-                val transformedMovies: MutableList<Movie> = ArrayList()
-                it.forEach{ dbMovie ->
-                    val movie: Movie = mapper.transformFromDBModelToModel(dbMovie)
-                    transformedMovies.add(movie)
-                }
-                adapter.setMovies(transformedMovies)
-            }
+        viewModel.getMoviesFromDB().observe(viewLifecycleOwner, Observer { movies ->
+            adapter.setMovies(movies)
         })
 
         viewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
         })
 
+    }
+
+    private fun refresh() {
+        viewModel.getMoviesFromServer()
     }
 
     private fun initRecycler(adapter: MovieAdapter) {

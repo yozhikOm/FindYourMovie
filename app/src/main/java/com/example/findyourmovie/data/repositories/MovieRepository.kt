@@ -43,12 +43,6 @@ class MovieRepository(private val movieDao: MovieDao) {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun getAllMovies() {
-        movieDao.getAll()
-    }
-
-    @Suppress("RedundantSuspendModifier")
-    @WorkerThread
     suspend fun setFavorite(id: Int, isFavorite: Boolean) {
         movieDao.setFavorite(id, isFavorite)
     }

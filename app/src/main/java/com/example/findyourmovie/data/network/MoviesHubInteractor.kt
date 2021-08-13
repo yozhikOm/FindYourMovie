@@ -15,7 +15,7 @@ import retrofit2.Response
 class MoviesHubInteractor(
     private val context: Context,
     private val moviesHubService: MoviesHubAPI,
-    private val movieRepository: MovieRepository
+    val movieRepository: MovieRepository
 ) {
     fun getMovies(page: Int, callback: GetMoviesCallback) {
         moviesHubService.getMovies(Helper.getMetaData(context, "api_key")!!, page)

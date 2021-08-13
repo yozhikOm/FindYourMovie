@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.fragment.app.Fragment
@@ -19,6 +20,7 @@ import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieMapper
 import com.example.findyourmovie.presentation.viewmodel.FavoritesViewModel
 import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
+import kotlinx.android.synthetic.main.fragment_movie_list.*
 
 class MovieListFragment: Fragment() {
     private val viewModel: MovieViewModel by activityViewModels()
@@ -26,6 +28,7 @@ class MovieListFragment: Fragment() {
 
     companion object {
         const val TAG = "MovieListFragment"
+        const val QUERY_PAGE_SIZE = 20
     }
 
     override fun onCreateView(
@@ -66,17 +69,29 @@ class MovieListFragment: Fragment() {
         initRecycler(adapter)
 
         viewModel.getMoviesFromDB().observe(viewLifecycleOwner, Observer { movies ->
+            if(movies.isEmpty()) {
+                showProgressBar()
+            }
+            else {
+               hideProgressBar()
+            }
             adapter.setMovies(movies)
         })
 
         viewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            hideProgressBar()
         })
 
-    }
+//        viewModel.isLoading.observe(viewLifecycleOwner, Observer<Boolean> { isItLoading ->
+//            if(isItLoading){
+//                //showProgressBar()
+//            }
+//            else{
+//                hideProgressBar()
+//            }
+//        })
 
-    private fun refresh() {
-        viewModel.getMoviesFromServer()
     }
 
     private fun initRecycler(adapter: MovieAdapter) {
@@ -101,5 +116,54 @@ class MovieListFragment: Fragment() {
         val itemDecoration = CustomItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         itemDecoration.setDrawable(getDrawable(requireContext(), R.drawable.line_4dp_grey)!!)
         recyclerView.addItemDecoration(itemDecoration)
+
+        recyclerView.addOnScrollListener(scrollListener)
     }
+
+    private fun hideProgressBar() {
+        paginationProgressBar.visibility = View.INVISIBLE
+        isLoading = false
+    }
+
+    private fun showProgressBar() {
+        paginationProgressBar.visibility = View.VISIBLE
+        isLoading = true
+    }
+
+    var isLoading = false
+    var isLastPage = false
+    var isScrolling = false
+
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+            val visibleItemCount = layoutManager.childCount
+            val totalItemCount = layoutManager.itemCount
+
+            val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
+            val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
+            val isNotAtBeginning = firstVisibleItemPosition >= 0
+            val isTotalMoreThanVisible = totalItemCount >= QUERY_PAGE_SIZE
+            val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
+                    isTotalMoreThanVisible && isScrolling
+            if(shouldPaginate) {
+                showProgressBar()
+                viewModel.getMoviesFromServer()
+                isScrolling = false
+            } else {
+               recyclerView.setPadding(0, 0, 0, 0)
+            }
+        }
+
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                isScrolling = true
+            }
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import com.example.findyourmovie.data.*
 import com.example.findyourmovie.data.repositories.MovieRepository
 import com.example.findyourmovie.utils.Helper
@@ -17,14 +18,20 @@ class MoviesHubInteractor(
     private val moviesHubService: MoviesHubAPI,
     val movieRepository: MovieRepository
 ) {
+    companion object {
+        const val TAG = "MoviesHubInteractor"
+    }
+
     fun getMovies(page: Int, callback: GetMoviesCallback) {
+        Log.d(TAG, "Page: ${page}")
         moviesHubService.getMovies(Helper.getMetaData(context, "api_key")!!, page)
-            .enqueue(object : Callback<PopularMovies> {
+            .enqueue(object : Callback<NetworkResponse> {
                 override fun onResponse(
-                    call: Call<PopularMovies>,
-                    response: Response<PopularMovies>
+                    call: Call<NetworkResponse>,
+                    response: Response<NetworkResponse>
                 ) {
                     if (response.isSuccessful) {
+                        Log.d(TAG, "Cool! got it!")
                         val mapper = MovieMapper()
                         val transformedMovies: ArrayList<MovieDB> = ArrayList()
                         response.body()!!.results.forEach { movieNW ->
@@ -39,7 +46,8 @@ class MoviesHubInteractor(
                     }
                 }
 
-                override fun onFailure(call: Call<PopularMovies>, t: Throwable) {
+                override fun onFailure(call: Call<NetworkResponse>, t: Throwable) {
+                    Log.d(TAG, "Found error: ${t}")
                     callback.onError("Network error probably...")
                 }
             })

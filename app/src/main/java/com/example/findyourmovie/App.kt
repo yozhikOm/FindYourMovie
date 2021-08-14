@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
 class App: Application() {
@@ -66,6 +67,7 @@ class App: Application() {
 
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(logging)
+            .pingInterval(1, TimeUnit.SECONDS)
             .build()
 
         moviesHubAPI = Retrofit.Builder()

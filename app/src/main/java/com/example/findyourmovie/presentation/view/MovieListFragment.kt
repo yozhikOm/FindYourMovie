@@ -68,12 +68,22 @@ class MovieListFragment: Fragment() {
 
         initRecycler(adapter)
 
+        var isDBEmpty: Boolean = true
+
+        tryToLoadBtn.setOnClickListener{
+            getMoreData()
+        }
+
         viewModel.getMoviesFromDB().observe(viewLifecycleOwner, Observer { movies ->
+            //Показываем прогрессбар при первом запуске программы, когда БД еще пуста
             if(movies.isEmpty()) {
                 showProgressBar()
+                isDBEmpty = true
             }
             else {
-               hideProgressBar()
+                hideProgressBar()
+                tryToLoadBtn.visibility = View.INVISIBLE
+                isDBEmpty = false
             }
             adapter.setMovies(movies)
         })
@@ -81,16 +91,12 @@ class MovieListFragment: Fragment() {
         viewModel.error.observe(viewLifecycleOwner, Observer<String> { error ->
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
             hideProgressBar()
-        })
 
-//        viewModel.isLoading.observe(viewLifecycleOwner, Observer<Boolean> { isItLoading ->
-//            if(isItLoading){
-//                //showProgressBar()
-//            }
-//            else{
-//                hideProgressBar()
-//            }
-//        })
+            //Показываем кнопку "Try to load", при первом запуске программы с отключенным инетом
+            if(isDBEmpty){
+                tryToLoadBtn.visibility = View.VISIBLE
+            }
+        })
 
     }
 
@@ -118,6 +124,11 @@ class MovieListFragment: Fragment() {
         recyclerView.addItemDecoration(itemDecoration)
 
         recyclerView.addOnScrollListener(scrollListener)
+    }
+
+    private fun getMoreData() {
+        showProgressBar()
+        viewModel.getMoviesFromServer()
     }
 
     private fun hideProgressBar() {
@@ -150,8 +161,7 @@ class MovieListFragment: Fragment() {
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
                     isTotalMoreThanVisible && isScrolling
             if(shouldPaginate) {
-                showProgressBar()
-                viewModel.getMoviesFromServer()
+                getMoreData()
                 isScrolling = false
             } else {
                recyclerView.setPadding(0, 0, 0, 0)

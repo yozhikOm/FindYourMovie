@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.example.findyourmovie.data.PopularMovies
+import com.example.findyourmovie.data.NetworkResponse
 import com.example.findyourmovie.utils.Helper
 import retrofit2.Call
 import retrofit2.Callback
@@ -42,15 +42,15 @@ class MoviesHubUpdater(private val context: Context, private val service: Movies
     inner class GetMoviesRunnable : Runnable {
         override fun run() {
             service.getMovies(Helper.getMetaData(context, "api_key")!!)
-                .enqueue(object : Callback<PopularMovies> {
+                .enqueue(object : Callback<NetworkResponse> {
                     override fun onResponse(
-                        call: Call<PopularMovies>,
-                        response: Response<PopularMovies>
+                        call: Call<NetworkResponse>,
+                        response: Response<NetworkResponse>
                     ) {
                         handler.postDelayed(GetMoviesRunnable(), DELAY)
                     }
 
-                    override fun onFailure(call: Call<PopularMovies>, t: Throwable) {
+                    override fun onFailure(call: Call<NetworkResponse>, t: Throwable) {
                         Toast.makeText(context, "${t.message}", Toast.LENGTH_SHORT).show()
                     }
                 })

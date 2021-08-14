@@ -17,16 +17,7 @@ data class MovieNetwork(
 
     )
 
-data class PopularMovies(
-    val results: List<MovieNetwork>
+data class NetworkResponse(
+    val results: List<MovieNetwork>,
+    val page: Int
 )
-
-//data class Result(
-//    val id: Int,
-//    val overview: String,
-//    val poster_path: String,
-//    val release_date: String,
-//    val title: String,
-//    val vote_average: Double,
-//    val vote_count: Int
-//)

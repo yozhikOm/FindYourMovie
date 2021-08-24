@@ -10,7 +10,7 @@ interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addMovie(movie: MovieDB)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addMovies(movies: List<MovieDB>)
 
     @Query("SELECT * from Movies")

@@ -42,7 +42,6 @@ class App: Application() {
                 // Migration is not part of this codelab.
                 .fallbackToDestructiveMigration()
                 //.addCallback(MovieRoomDatabase.Companion.MovieDatabaseCallback(scope))
-                .allowMainThreadQueries()
                 .build()
             INSTANCE = instance
             return instance

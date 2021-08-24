@@ -12,7 +12,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
         <meta-data android:name="api_key" android:value="c058d9a291e7f1dd69f97f1afac69b61"/>
         <meta-data android:name="api_url" android:value="https://api.themoviedb.org/3/"/>
         <meta-data android:name="img_url" android:value="http://image.tmdb.org/t/p/w500"/>

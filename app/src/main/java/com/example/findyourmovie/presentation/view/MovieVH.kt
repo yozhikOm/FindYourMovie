@@ -31,18 +31,17 @@ class MovieVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val poster = itemView.findViewById<ImageView>(R.id.poster)
 
     fun bind(movie: Movie) {
-        //TODO как определить, какой фрагмент сейчас активный?
-        if (itemView.context as Activity is MainActivity) {
-        //if (itemView.context as Fragment is MovieListFragment) {
+        //TODO сделать когда-нибудь отдельный адаптер и вьюхолдер для избранного
+        //if (itemView.context as Activity is MainActivity) {
             if (movie.isFavorite) {
                 favIcon.setImageResource(R.drawable.ic_heart_red_24dp)
             } else {
                 favIcon.setImageResource(R.drawable.ic_heart_grey_24dp)
             }
-        }
-        else {//if (itemView.context as Fragment is FavoritesListFragment) {
-            favIcon.setImageResource(R.drawable.ic_delete_red_24dp)
-        }
+//        }
+//        else {
+//            favIcon.setImageResource(R.drawable.ic_delete_red_24dp)
+//        }
 
         if (movie.isVisited) {
             title.setTextColor(ContextCompat.getColor(itemView.context, R.color.colorVisited))

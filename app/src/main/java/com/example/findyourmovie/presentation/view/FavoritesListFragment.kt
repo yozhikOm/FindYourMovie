@@ -14,9 +14,11 @@ import com.example.findyourmovie.R
 import com.example.findyourmovie.data.Movie
 import com.example.findyourmovie.data.MovieMapper
 import com.example.findyourmovie.presentation.viewmodel.FavoritesViewModel
+import com.example.findyourmovie.presentation.viewmodel.MovieViewModel
 
 class FavoritesListFragment() : Fragment() {
-    private val viewModel: FavoritesViewModel by activityViewModels()
+    private val viewModel: MovieViewModel by activityViewModels()
+    private val favViewModel: FavoritesViewModel by activityViewModels()
 
     companion object {
         const val TAG = "FavoritesListFragment"
@@ -35,13 +37,14 @@ class FavoritesListFragment() : Fragment() {
         val listener: OnMovieClickListener = object:
             OnMovieClickListener {
             override fun onDetailsClick(movieItem: Movie, position: Int) {
-                viewModel.setVisited(movieItem.id, true)
+                favViewModel.setVisited(movieItem.id, true)
 
                 (activity as? OnDetailsClickListener)?.onDetailsClick(movieItem, position)
             }
 
             override fun onFavoriteClick(movieItem: Movie, position:Int) {
-                viewModel.delete(movieItem.id)
+                favViewModel.delete(movieItem.id)
+                viewModel.setFavorite(movieItem.id, false)
 
                 Toast.makeText(requireContext(), "Фильм '${movieItem.title }' удален из избранного", Toast.LENGTH_SHORT).show()
             }
@@ -50,7 +53,7 @@ class FavoritesListFragment() : Fragment() {
 
         view.findViewById<RecyclerView>(R.id.recyclerView).adapter = adapter
 
-        viewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
+        favViewModel.favoriteMovies.observe(viewLifecycleOwner, Observer { movies ->
 
             movies?.let {
                 val mapper = MovieMapper();

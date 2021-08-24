@@ -1,0 +1,60 @@
+package com.example.findyourmovie.data.network
+
+import android.content.Context
+import android.util.Log
+import com.example.findyourmovie.data.*
+import com.example.findyourmovie.data.repositories.MovieRepository
+import com.example.findyourmovie.utils.Helper
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+
+class MoviesHubInteractor(
+    private val context: Context,
+    private val moviesHubService: MoviesHubAPI,
+    val movieRepository: MovieRepository
+) {
+    companion object {
+        const val TAG = "MoviesHubInteractor"
+    }
+
+    fun getMovies(page: Int, callback: GetMoviesCallback) {
+        Log.d(TAG, "Page: ${page}")
+        moviesHubService.getMovies(Helper.getMetaData(context, "api_key")!!, page)
+            .enqueue(object : Callback<NetworkResponse> {
+                override fun onResponse(
+                    call: Call<NetworkResponse>,
+                    response: Response<NetworkResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "Cool! got it!")
+                        val mapper = MovieMapper()
+                        val transformedMovies: ArrayList<MovieDB> = ArrayList()
+                        response.body()!!.results.forEach { movieNW ->
+                            val movie: MovieDB =
+                                mapper.transformFromNetworkModelToDBModel(movieNW)
+                            transformedMovies.add(movie)
+                        }
+                        Thread {
+                            movieRepository.insertAll(transformedMovies)
+                        }.start()
+                        callback.onSuccess(transformedMovies)
+                    } else {
+                        callback.onError("Error: ${response.code()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<NetworkResponse>, t: Throwable) {
+                    Log.d(TAG, "Found error: ${t}")
+                    callback.onError("Network error probably...")
+                }
+            })
+    }
+
+    interface GetMoviesCallback {
+        fun onSuccess(repos: List<MovieDB>)
+        fun onError(error: String)
+    }
+
+}
